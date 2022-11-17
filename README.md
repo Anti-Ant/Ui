@@ -1,2 +1,1 @@
-# Ui
-Script ui
+This is a script UI for my scripts.
