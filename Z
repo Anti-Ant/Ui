@@ -78,44 +78,6 @@ b:Toggle("Auto Custom Amount", function(bool)
 end)
 
 
---// Folder 'd' (WorkoutButtons) \\--
-local d = w:CreateFolder("WorkoutButtons")
-d:AddButton({ text = "10k", callback = function() ClickWorkout(10000) end })
-d:AddButton({ text = "25k", callback = function() ClickWorkout(25000) end })
-d:AddButton({ text = "50k", callback = function() ClickWorkout(50000) end })
-d:AddButton({ text = "75k", callback = function() ClickWorkout(75000) end })
-d:AddButton({ text = "100k", callback = function() ClickWorkout(100000) end })
-d:AddButton({ text = "150k", callback = function() ClickWorkout(150000) end })
-d:AddButton({ text = "200k", callback = function() ClickWorkout(200000) end })
-d:AddButton({ text = "250k", callback = function() ClickWorkout(250000) end })
-d:AddButton({ text = "300k", callback = function() ClickWorkout(300000) end })
-d:AddButton({ text = "350k", callback = function() ClickWorkout(350000) end })
-d:AddButton({ text = "400k", callback = function() ClickWorkout(400000) end })
-
-d:AddButton({ text = "450k", callback = function() ClickWorkout(450000) end })
-d:AddButton({ text = "500k", callback = function() ClickWorkout(500000) end })
-d:AddButton({ text = "550k", callback = function() ClickWorkout(550000) end })
-d:AddButton({ text = "650k", callback = function() ClickWorkout(650000) end })
-d:AddButton({ text = "700k", callback = function() ClickWorkout(700000) end })
-d:AddButton({ text = "750k", callback = function() ClickWorkout(750000) end })
-d:AddButton({ text = "800k", callback = function() ClickWorkout(800000) end })
-d:AddButton({ text = "850k", callback = function() ClickWorkout(850000) end })
-d:AddButton({ text = "900k", callback = function() ClickWorkout(900000) end })
-d:AddButton({ text = "950k", callback = function() ClickWorkout(950000) end })
-d:AddButton({ text = "1M", callback = function() ClickWorkout(1000000) end })
-
-d:AddButton({ text = "1.1M", callback = function() ClickWorkout(1100000) end })
-d:AddButton({ text = "1.25M", callback = function() ClickWorkout(1250000) end })
-d:AddButton({ text = "1.5M", callback = function() ClickWorkout(1500000) end })
-d:AddButton({ text = "1.75M", callback = function() ClickWorkout(1750000) end })
-d:AddButton({ text = "2M", callback = function() ClickWorkout(2000000) end })
-d:AddButton({ text = "2.25M", callback = function() ClickWorkout(2250000) end })
-d:AddButton({ text = "2.5M", callback = function() ClickWorkout(2500000) end })
-d:AddButton({ text = "2.75M", callback = function() ClickWorkout(2750000) end })
-d:AddButton({ text = "3M", callback = function() ClickWorkout(3000000) end })
-d:AddButton({ text = "3.25M", callback = function() ClickWorkout(3250000) end })
-d:AddButton({ text = "3.5M", callback = function() ClickWorkout(3500000) end })
-
 --// Folder 'c' (Teleports) \\--
 local c = w:CreateFolder("Teleports")
 
@@ -125,4 +87,140 @@ end)
 
 c:Button("TP Best Sewer", function()
     Player.Character.HumanoidRootPart.CFrame = CFrame.new(-109.965828, 81.1445236, 17902.4023)
+end)
+
+
+--// Folder 'd' (WorkoutButtons) \\--
+local d = w:CreateFolder("WorkoutButtons")
+
+b:Button("10k", function()
+    if Workout then Workout:FireServer(10000) end
+end)
+
+b:Button("25k", function()
+    if Workout then Workout:FireServer(25000) end
+end)
+
+b:Button("50k", function()
+    if Workout then Workout:FireServer(50000) end
+end)
+
+b:Button("75k", function()
+    if Workout then Workout:FireServer(75000) end
+end)
+
+b:Button("100k", function()
+    if Workout then Workout:FireServer(100000) end
+end)
+
+b:Button("150k", function()
+    if Workout then Workout:FireServer(150000) end
+end)
+
+b:Button("200k", function()
+    if Workout then Workout:FireServer(200000) end
+end)
+
+b:Button("250k", function()
+    if Workout then Workout:FireServer(250000) end
+end)
+
+b:Button("300k", function()
+    if Workout then Workout:FireServer(300000) end
+end)
+
+b:Button("350k", function()
+    if Workout then Workout:FireServer(350000) end
+end)
+
+b:Button("400k", function()
+    if Workout then Workout:FireServer(400000) end
+end)
+
+b:Button("450k", function()
+    if Workout then Workout:FireServer(450000) end
+end)
+
+b:Button("500k", function()
+    if Workout then Workout:FireServer(500000) end
+end)
+
+b:Button("550k", function()
+    if Workout then Workout:FireServer(550000) end
+end)
+
+b:Button("650k", function()
+    if Workout then Workout:FireServer(650000) end
+end)
+
+b:Button("700k", function()
+    if Workout then Workout:FireServer(700000) end
+end)
+
+b:Button("750k", function()
+    if Workout then Workout:FireServer(750000) end
+end)
+
+b:Button("800k", function()
+    if Workout then Workout:FireServer(800000) end
+end)
+
+b:Button("850k", function()
+    if Workout then Workout:FireServer(850000) end
+end)
+
+b:Button("900k", function()
+    if Workout then Workout:FireServer(900000) end
+end)
+
+b:Button("950k", function()
+    if Workout then Workout:FireServer(950000) end
+end)
+
+b:Button("1M", function()
+    if Workout then Workout:FireServer(1000000) end
+end)
+
+b:Button("1.1M", function()
+    if Workout then Workout:FireServer(1100000) end
+end)
+
+b:Button("1.25M", function()
+    if Workout then Workout:FireServer(1250000) end
+end)
+
+b:Button("1.5M", function()
+    if Workout then Workout:FireServer(1500000) end
+end)
+
+b:Button("1.75M", function()
+    if Workout then Workout:FireServer(1750000) end
+end)
+
+b:Button("2M", function()
+    if Workout then Workout:FireServer(2000000) end
+end)
+
+b:Button("2.25M", function()
+    if Workout then Workout:FireServer(2250000) end
+end)
+
+b:Button("2.5M", function()
+    if Workout then Workout:FireServer(2500000) end
+end)
+
+b:Button("2.75M", function()
+    if Workout then Workout:FireServer(2750000) end
+end)
+
+b:Button("3M", function()
+    if Workout then Workout:FireServer(3000000) end
+end)
+
+b:Button("3.25M", function()
+    if Workout then Workout:FireServer(3250000) end
+end)
+
+b:Button("3.5M", function()
+    if Workout then Workout:FireServer(3500000) end
 end)
