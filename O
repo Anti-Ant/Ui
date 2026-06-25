@@ -1,25 +1,3 @@
-local WorkoutRemote = nil
-local MT = getrawmetatable(game)
-local OldNameCall = MT.__namecall
-setreadonly(MT, false)
-
-MT.__namecall = newcclosure(function(self, ...)
-    local Method = getnamecallmethod()
-    local Args = {...}
-    
-    -- If the game fires a RemoteEvent and sends a number (like the workout amount)
-    if not checkcaller() and Method == "FireServer" and self:IsA("RemoteEvent") then
-        if type(Args[1]) == "number" then
-            -- We assume this is the workout remote! Capture it.
-            WorkoutRemote = self
-            print("Captured Workout Remote: " .. WorkoutRemote.Name)
-        end
-    end
-    
-    return OldNameCall(self, ...)
-end)
-setreadonly(MT, true)
-
 --// Service \\--
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
