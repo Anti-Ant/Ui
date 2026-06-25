@@ -1,0 +1,298 @@
+--// Service \\--
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
+
+--// Variables \\--
+local Player = Players.LocalPlayer
+local Draggables = Workspace:WaitForChild("PlayerDraggables"):WaitForChild(Player.UserId)
+local Areas = Workspace:WaitForChild("Areas")
+
+--// Send Notification \\--
+function Notification(A_1, A_2)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = A_1,
+            Text = A_2,
+            Duration = 6
+        })
+    end)
+end
+
+--// Dynamic Workout Remote Capture \\--
+local Workout = nil
+
+local MT = getrawmetatable(game)
+local OldNameCall = MT.__namecall
+setreadonly(MT, false)
+
+MT.__namecall = newcclosure(function(self, ...)
+    local Method = getnamecallmethod()
+    local Args = {...}
+    
+    -- When the game naturally fires a RemoteEvent with a number, capture it
+    if not checkcaller() and Method == "FireServer" and self:IsA("RemoteEvent") then
+        if type(Args[1]) == "number" then
+            Workout = self
+            print("Captured Workout Remote: " .. Workout.Name)
+            Notification("Captured!", "Workout Remote Found. Auto-farm is ready.")
+        end
+    end
+    
+    return OldNameCall(self, ...)
+end)
+setreadonly(MT, true)
+
+--// Get Goal \\--
+function GetGoal()
+    for _, A_1 in next, Areas:GetChildren() do
+        local Goal = A_1:FindFirstChild("Goal", true)
+        if Goal and Goal:FindFirstChildWhichIsA("TouchTransmitter") then
+            return Goal
+        end
+    end
+    return false
+end
+
+--// Exploit Fix \\--
+if not pcall(function() return syn.protect_gui end) then
+    syn = {}
+    syn.protect_gui = function(A_1)
+        A_1.Parent = game:GetService("CoreGui")
+    end
+end
+
+--// UI Library \\--
+local Library = loadstring(game:HttpGetAsync('https://pastebin.com/raw/9FALrXPM'))()
+local Window = Library:CreateWindow("Energy")
+local Window2 = Library:CreateWindow("Workout")
+local Window3 = Library:CreateWindow("Rebirth")
+local Window4 = Library:CreateWindow("One Click Workout")
+local Window5 = Library:CreateWindow("One Click Workout v2")
+local Window6 = Library:CreateWindow("One Click Workout v3")
+
+--// Exploit Check \\--
+if fireproximityprompt and firetouchinterest then
+    local Toggle_1 = Window:AddToggle({
+        text = 'Auto Pull',
+        flag = 'Enabled',
+        callback = function()
+            -- Check
+            if not Library.flags.Enabled then return end
+
+            -- Get Goal
+            local Goal = GetGoal()
+
+            -- Get Closest Draggable
+            local Closest = false
+            local Distance = 120
+            for _, A_1 in next, Areas:GetDescendants() do
+                if A_1:IsA("ProximityPrompt") and Player:DistanceFromCharacter(A_1.Parent.Position) < Distance and A_1:FindFirstAncestor("DraggableItems") then
+                    Closest = A_1
+                    Distance = Player:DistanceFromCharacter(A_1.Parent.Position)
+                end
+            end
+            
+            if Closest == false then
+                Notification("Gui", "Made by !NotAnt#9009")
+            end
+
+            -- Stay Put
+            local CloseCFrame = Closest and Closest.Parent.CFrame or Player.Character.HumanoidRootPart.CFrame
+            Player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+            Player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+
+            -- NoClip
+            local NoClip = RunService.RenderStepped:Connect(function()
+                Player.Character.Humanoid:ChangeState(11)
+                Player.Character.HumanoidRootPart.CFrame = CloseCFrame
+            end)
+
+            -- Loop
+            while Closest and Goal and Library.flags.Enabled and task.wait() do
+                local T_1 = Draggables:GetChildren()
+
+                if #T_1 <= 3 then
+                    fireproximityprompt(Closest, 1)
+                end
+
+                for _, A_1 in next, T_1 do
+                    firetouchinterest(Goal, A_1, 0)
+                    firetouchinterest(Goal, A_1, 1)
+                end
+            end
+
+            -- Make sure to finish it
+            task.wait(0.03)
+            if Goal then
+                for _, A_1 in next, Draggables:GetChildren() do
+                    firetouchinterest(Goal, A_1, 0)
+                    firetouchinterest(Goal, A_1, 1)
+                end
+            end
+            NoClip:Disconnect()
+        end
+    })
+
+    Window:AddButton({
+        text = "Best Draggable",
+        callback = function()
+            local Highest = false
+            local HighestArea = "Area" .. #Areas:GetChildren()
+            for _, A_1 in next, Areas:GetChildren() do
+                if string.find(A_1.Name, HighestArea) then
+                    Highest = A_1
+                end
+            end
+            if Highest ~= false and #Highest.DraggableItems:GetChildren() <= 2 then
+                local Model = Highest:FindFirstChildWhichIsA("Model")
+                if Model then
+                    local ModelCFrame = Model:GetModelCFrame()
+                    repeat
+                        pcall(function()
+                            Player.Character.HumanoidRootPart.CFrame = ModelCFrame
+                        end)
+                        task.wait()
+                    until #Highest.DraggableItems:GetChildren() >= 4
+                end
+            end
+
+            if Highest ~= false then
+                local HighestValue = 0
+                local Best = false
+                for _, A_1 in next, Highest.DraggableItems:GetDescendants() do
+                    if A_1:IsA("ProximityPrompt") and A_1:FindFirstAncestor("DraggableItems") then
+                        local Worth = A_1.Parent.Parent:FindFirstChild("Coins")
+                        if Worth and Worth.Value > HighestValue then
+                            HighestValue = Worth.Value
+                            Best = A_1.Parent.CFrame
+                        end
+                    end
+                end
+                if Best ~= false then
+                    Player.Character.HumanoidRootPart.CFrame = Best + Vector3.new(0, Player.Character.HumanoidRootPart.Size.Y, 0)
+                end
+            else
+                Notification("Gui", "Made by !NotAnt#9009")
+            end
+        end
+    })
+else
+    Window:AddLabel({ text = "Buy Synapse X or equivalent" })
+end
+
+--// Auto-Workout \\--
+Window2:AddButton({
+    text = "TP Workout",
+    callback = function()
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(-372.508667, 101.878693, 18012.2832)
+    end
+})
+
+Window2:AddButton({
+    text = "TP Workout Start",
+    callback = function()
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(147.3, 14.9684, -211.784)
+    end
+})
+
+local function DoAutoWorkout(amount)
+    while Library.flags.Enabled and task.wait() do
+        if Workout then
+            Workout:FireServer(amount)
+        else
+            Notification("Missing Data", "Click workout manually once to capture remote!")
+            task.wait(2) -- Prevent spamming notifications
+        end
+    end
+end
+
+Window2:AddToggle({ text = "Auto-Workout-1k", flag = 'Enabled', callback = function() DoAutoWorkout(1000) end })
+Window2:AddToggle({ text = "Auto-Workout-10k", flag = 'Enabled', callback = function() DoAutoWorkout(10000) end })
+Window2:AddToggle({ text = "Auto-Workout-100k", flag = 'Enabled', callback = function() DoAutoWorkout(100000) end })
+Window2:AddToggle({ text = "Auto-Workout-1M", flag = 'Enabled', callback = function() DoAutoWorkout(1000000) end })
+
+--//Rebirth\\--
+Window3:AddToggle({
+    text = "Auto-Rebirth",
+    flag = 'Enabled',
+    callback = function()
+        while Library.flags.Enabled and task.wait() do
+            local Event = ReplicatedStorage:FindFirstChild("StrongMan_Rebirth")
+            if Event then
+                Event:FireServer()
+            end
+        end
+    end
+})
+
+--//Teleport\\--
+Window:AddButton({ text = "TP Best Sewer", callback = function() Player.Character.HumanoidRootPart.CFrame = CFrame.new(-109.965828, 81.1445236, 17902.4023) end })
+Window:AddButton({ text = "TP Middle Sewer", callback = function() Player.Character.HumanoidRootPart.CFrame = CFrame.new(120.454, 12.2518, 17903.9) end })
+Window:AddButton({ text = "TP Lowest Sewer", callback = function() Player.Character.HumanoidRootPart.CFrame = CFrame.new(294.454, 12.2518, 17883.4) end })
+
+--//One-Click Helper\\--
+local function ClickWorkout(amount)
+    if Workout then
+        Workout:FireServer(amount)
+    else
+        Notification("Missing Data", "Click workout manually once to capture remote!")
+    end
+end
+
+--//One-Click\\--
+Window4:AddButton({ text = "10k", callback = function() ClickWorkout(10000) end })
+Window4:AddButton({ text = "25k", callback = function() ClickWorkout(25000) end })
+Window4:AddButton({ text = "50k", callback = function() ClickWorkout(50000) end })
+Window4:AddButton({ text = "75k", callback = function() ClickWorkout(75000) end })
+Window4:AddButton({ text = "100k", callback = function() ClickWorkout(100000) end })
+Window4:AddButton({ text = "150k", callback = function() ClickWorkout(150000) end })
+Window4:AddButton({ text = "200k", callback = function() ClickWorkout(200000) end })
+Window4:AddButton({ text = "250k", callback = function() ClickWorkout(250000) end })
+Window4:AddButton({ text = "300k", callback = function() ClickWorkout(300000) end })
+Window4:AddButton({ text = "350k", callback = function() ClickWorkout(350000) end })
+Window4:AddButton({ text = "400k", callback = function() ClickWorkout(400000) end })
+
+Window5:AddButton({ text = "450k", callback = function() ClickWorkout(450000) end })
+Window5:AddButton({ text = "500k", callback = function() ClickWorkout(500000) end })
+Window5:AddButton({ text = "550k", callback = function() ClickWorkout(550000) end })
+Window5:AddButton({ text = "650k", callback = function() ClickWorkout(650000) end })
+Window5:AddButton({ text = "700k", callback = function() ClickWorkout(700000) end })
+Window5:AddButton({ text = "750k", callback = function() ClickWorkout(750000) end })
+Window5:AddButton({ text = "800k", callback = function() ClickWorkout(800000) end })
+Window5:AddButton({ text = "850k", callback = function() ClickWorkout(850000) end })
+Window5:AddButton({ text = "900k", callback = function() ClickWorkout(900000) end })
+Window5:AddButton({ text = "950k", callback = function() ClickWorkout(950000) end })
+Window5:AddButton({ text = "1M", callback = function() ClickWorkout(1000000) end })
+
+Window6:AddButton({ text = "1.1M", callback = function() ClickWorkout(1100000) end })
+Window6:AddButton({ text = "1.25M", callback = function() ClickWorkout(1250000) end })
+Window6:AddButton({ text = "1.5M", callback = function() ClickWorkout(1500000) end })
+Window6:AddButton({ text = "1.75M", callback = function() ClickWorkout(1750000) end })
+Window6:AddButton({ text = "2M", callback = function() ClickWorkout(2000000) end })
+Window6:AddButton({ text = "2.25M", callback = function() ClickWorkout(2250000) end })
+Window6:AddButton({ text = "2.5M", callback = function() ClickWorkout(2500000) end })
+Window6:AddButton({ text = "2.75M", callback = function() ClickWorkout(2750000) end })
+Window6:AddButton({ text = "3M", callback = function() ClickWorkout(3000000) end })
+Window6:AddButton({ text = "3.25M", callback = function() ClickWorkout(3250000) end })
+Window6:AddButton({ text = "3.5M", callback = function() ClickWorkout(3500000) end })
+
+Library:Init()
+
+--// Draggable Fix \\--
+Draggables.ChildAdded:Connect(function(A_1)
+    if Library.flags.Enabled then
+        A_1.CanCollide = false
+        A_1.Anchored = true
+    end
+end)
+
+--//Anti-AFK\\--
+local vu = game:GetService("VirtualUser")
+Player.Idled:Connect(function()
+    vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+end)
