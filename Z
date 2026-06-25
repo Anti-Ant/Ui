@@ -92,6 +92,11 @@ end)
 
 --// Folder 'd' (WorkoutButtons) \\--
 local d = w:CreateFolder("WorkoutButtons")
+local e = w:CreateFolder("WorkoutButtons1")
+local f = w:CreateFolder("WorkoutButtons2")
+local g = w:CreateFolder("WorkoutButtons3")
+local h = w:CreateFolder("WorkoutButtons4")
+local i = w:CreateFolder("WorkoutButtons5")
 
 d:Button("10k", function()
     if Workout then Workout:FireServer(10000) end
@@ -121,106 +126,106 @@ d:Button("200k", function()
     if Workout then Workout:FireServer(200000) end
 end)
 
-d:Button("250k", function()
+e:Button("250k", function()
     if Workout then Workout:FireServer(250000) end
 end)
 
-d:Button("300k", function()
+e:Button("300k", function()
     if Workout then Workout:FireServer(300000) end
 end)
 
-d:Button("350k", function()
+e:Button("350k", function()
     if Workout then Workout:FireServer(350000) end
 end)
 
-d:Button("400k", function()
+e:Button("400k", function()
     if Workout then Workout:FireServer(400000) end
 end)
 
-d:Button("450k", function()
+e:Button("450k", function()
     if Workout then Workout:FireServer(450000) end
 end)
 
-d:Button("500k", function()
+f:Button("500k", function()
     if Workout then Workout:FireServer(500000) end
 end)
 
-d:Button("550k", function()
+f:Button("550k", function()
     if Workout then Workout:FireServer(550000) end
 end)
 
-d:Button("650k", function()
+f:Button("650k", function()
     if Workout then Workout:FireServer(650000) end
 end)
 
-d:Button("700k", function()
+f:Button("700k", function()
     if Workout then Workout:FireServer(700000) end
 end)
 
-d:Button("750k", function()
+f:Button("750k", function()
     if Workout then Workout:FireServer(750000) end
 end)
 
-d:Button("800k", function()
+g:Button("800k", function()
     if Workout then Workout:FireServer(800000) end
 end)
 
-d:Button("850k", function()
+g:Button("850k", function()
     if Workout then Workout:FireServer(850000) end
 end)
 
-d:Button("900k", function()
+g:Button("900k", function()
     if Workout then Workout:FireServer(900000) end
 end)
 
-d:Button("950k", function()
+g:Button("950k", function()
     if Workout then Workout:FireServer(950000) end
 end)
 
-d:Button("1M", function()
+g:Button("1M", function()
     if Workout then Workout:FireServer(1000000) end
 end)
 
-d:Button("1.1M", function()
+h:Button("1.1M", function()
     if Workout then Workout:FireServer(1100000) end
 end)
 
-d:Button("1.25M", function()
+h:Button("1.25M", function()
     if Workout then Workout:FireServer(1250000) end
 end)
 
-d:Button("1.5M", function()
+h:Button("1.5M", function()
     if Workout then Workout:FireServer(1500000) end
 end)
 
-d:Button("1.75M", function()
+h:Button("1.75M", function()
     if Workout then Workout:FireServer(1750000) end
 end)
 
-d:Button("2M", function()
+h:Button("2M", function()
     if Workout then Workout:FireServer(2000000) end
 end)
 
-d:Button("2.25M", function()
+i:Button("2.25M", function()
     if Workout then Workout:FireServer(2250000) end
 end)
 
-d:Button("2.5M", function()
+i:Button("2.5M", function()
     if Workout then Workout:FireServer(2500000) end
 end)
 
-d:Button("2.75M", function()
+i:Button("2.75M", function()
     if Workout then Workout:FireServer(2750000) end
 end)
 
-d:Button("3M", function()
+i:Button("3M", function()
     if Workout then Workout:FireServer(3000000) end
 end)
 
-d:Button("3.25M", function()
+i:Button("3.25M", function()
     if Workout then Workout:FireServer(3250000) end
 end)
 
-d:Button("3.5M", function()
+i:Button("3.5M", function()
     if Workout then Workout:FireServer(3500000) end
 end)
