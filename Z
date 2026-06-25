@@ -65,7 +65,7 @@ if not pcall(function() return syn.protect_gui end) then
 end
 
 --// UI Library \\--
-local Library = loadstring(game:HttpGetAsync('https://pastebin.com/raw/9FALrXPM'))()
+local Library = loadstring(game:HttpGetAsync('https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Wally%20Ui'))()
 local Window = Library:CreateWindow("Energy")
 local Window2 = Library:CreateWindow("Workout")
 local Window3 = Library:CreateWindow("Rebirth")
