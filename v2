@@ -11,6 +11,23 @@ getgenv().SaberFarmingStates = {
     BringAdvancedWater = false,
     BringMasterWater = false,
     BringGrandmasterWater = false
+    ,
+    -- v2 selection + master farm toggle
+    V2 = {
+        Fire = {
+            Basic = false,
+            Advanced = false,
+            Master = false,
+            Grandmaster = false
+        },
+        Water = {
+            Basic = false,
+            Advanced = false,
+            Master = false,
+            Grandmaster = false
+        },
+        FarmActive = false
+    }
 }
 
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -61,6 +78,51 @@ end)
 
 WaterFolder:Toggle("Grandmaster Water Mobs/Boss", function(bool)
     getgenv().SaberFarmingStates.BringGrandmasterWater = bool
+end)
+
+-- ===================== V2 UI: Separate selection toggles + master farm toggle =====================
+local FireV2 = Window:CreateFolder("Fire v2")
+
+FireV2:Toggle("Basic Fire (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Fire.Basic = bool
+end)
+
+FireV2:Toggle("Advanced Fire (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Fire.Advanced = bool
+end)
+
+FireV2:Toggle("Master Fire (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Fire.Master = bool
+end)
+
+FireV2:Toggle("Grandmaster Fire (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Fire.Grandmaster = bool
+end)
+
+FireV2:Toggle("Start Farm (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.FarmActive = bool
+end)
+
+local WaterV2 = Window:CreateFolder("Water v2")
+
+WaterV2:Toggle("Basic Water (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Water.Basic = bool
+end)
+
+WaterV2:Toggle("Advanced Water (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Water.Advanced = bool
+end)
+
+WaterV2:Toggle("Master Water (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Water.Master = bool
+end)
+
+WaterV2:Toggle("Grandmaster Water (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.Water.Grandmaster = bool
+end)
+
+WaterV2:Toggle("Start Farm (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.FarmActive = bool
 end)
 
 -- =============================================================================
@@ -183,5 +245,102 @@ task.spawn(function()
 
         -- short wait to avoid spamming
         task.wait(0.08)
+    end
+end)
+
+-- ===================== V2: Teleport farm (teleports player between selected areas) =====================
+
+local FireStages = {
+    { key = "Basic", area = workspace.Gameplay.Map.ElementZones.Fire.Fire, tp = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339) },
+    { key = "Advanced", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and workspace.Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire), tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1) },
+    { key = "Master", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and workspace.Gameplay.RegionsLoaded.MasterFireArea.Important.Fire), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) },
+    { key = "Grandmaster", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and workspace.Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) }
+}
+
+local WaterStages = {
+    { key = "Basic", area = workspace.Gameplay.Map.ElementZones.Water.Water, tp = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339) },
+    { key = "Advanced", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and workspace.Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water), tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1) },
+    { key = "Master", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and workspace.Gameplay.RegionsLoaded.MasterWaterArea.Important.Water), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) },
+    { key = "Grandmaster", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and workspace.Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) }
+}
+
+local function getAreaEnemyHealths(area)
+    local list = {}
+    if not area then return list end
+    for _, obj in ipairs(area:GetDescendants()) do
+        if obj:IsA("Model") then
+            local hrp = obj:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local ev = hrp:FindFirstChild("EnemyHealth")
+                if ev then table.insert(list, ev) end
+            end
+        end
+    end
+    return list
+end
+
+local function waitForAreaClear(area)
+    local enemies = getAreaEnemyHealths(area)
+    if #enemies == 0 then return true end
+    while true do
+        local allDead = true
+        for _, ev in ipairs(enemies) do
+            if ev and ev.Value > 0 then
+                allDead = false
+                break
+            end
+        end
+        if allDead then return true end
+        task.wait(0.1)
+    end
+end
+
+local function teleportTo(cf)
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = cf
+    end
+end
+
+local function attackCurrentArea()
+    -- placeholder: user may add attack logic here
+end
+
+-- Farm loop for v2 selection
+task.spawn(function()
+    while true do
+        if getgenv().SaberFarmingStates.V2.FarmActive then
+            pcall(function()
+                local enabledFire = {}
+                for _, s in ipairs(FireStages) do
+                    if getgenv().SaberFarmingStates.V2.Fire[s.key] and s.area then
+                        table.insert(enabledFire, s)
+                    end
+                end
+
+                local enabledWater = {}
+                for _, s in ipairs(WaterStages) do
+                    if getgenv().SaberFarmingStates.V2.Water[s.key] and s.area then
+                        table.insert(enabledWater, s)
+                    end
+                end
+
+                for _, stage in ipairs(enabledFire) do
+                    if not getgenv().SaberFarmingStates.V2.FarmActive then break end
+                    waitForAreaClear(stage.area)
+                    teleportTo(stage.tp)
+                    task.wait(0.4)
+                    attackCurrentArea()
+                end
+
+                for _, stage in ipairs(enabledWater) do
+                    if not getgenv().SaberFarmingStates.V2.FarmActive then break end
+                    waitForAreaClear(stage.area)
+                    teleportTo(stage.tp)
+                    task.wait(0.4)
+                    attackCurrentArea()
+                end
+            end)
+        end
+        task.wait(0.2)
     end
 end)
