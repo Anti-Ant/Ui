@@ -1,7 +1,7 @@
 -- Load the Anti-Ant Mobile UI Library
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Orion"))()
 
-local Window = AntLib:MakeWindow({
+function AntLib:MakeWindow({
     Name = "Saber Sim Hub",
     SaveConfig = false,
     IntroEnabled = true,
