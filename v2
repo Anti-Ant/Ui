@@ -88,17 +88,17 @@ local FireStages = {
     },
     {
         key = "Advanced",
-        area = game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire,
+        area = game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire,
         tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1)
     },
     {
         key = "Master",
-        area = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire,
+        area = game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire,
         tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
     },
     {
         key = "Grandmaster",
-        area = game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire,
+        area = game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire,
         tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
     }
 }
@@ -111,17 +111,17 @@ local WaterStages = {
     },
     {
         key = "Advanced",
-        area = game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water,
+        area = game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water,
         tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1)
     },
     {
         key = "Master",
-        area = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water,
+        area = game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water,
         tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
     },
     {
         key = "Grandmaster",
-        area = game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water,
+        area = game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water,
         tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
     }
 }
