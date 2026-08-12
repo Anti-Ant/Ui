@@ -18,7 +18,7 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 -- =============================================================================
 -- 2. BOOT WALLY V3 UI LIBRARY & CREATE MAIN WINDOW
 -- =============================================================================
-local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Wally%20Ui')))()
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Wally%20Ui')))() 
 local Window = library:CreateWindow("Saber Sim Hub")
 
 -- =============================================================================
