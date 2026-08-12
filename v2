@@ -1,0 +1,241 @@
+-- =============================================================================
+-- 1. STATE INITIALIZATION
+-- =============================================================================
+getgenv().SaberFarmingStates = {
+    FarmActive = false,
+
+    Fire = {
+        Basic = false,
+        Advanced = false,
+        Master = false,
+        Grandmaster = false
+    },
+
+    Water = {
+        Basic = false,
+        Advanced = false,
+        Master = false,
+        Grandmaster = false
+    }
+}
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+
+-- =============================================================================
+-- 2. WALLY UI
+-- =============================================================================
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Wally%20Ui"))()
+local Window = library:CreateWindow("Saber Sim Hub")
+
+-- =============================================================================
+-- 3. FIRE v2 FOLDER
+-- =============================================================================
+local FireV2 = Window:CreateFolder("Fire v2")
+
+FireV2:Toggle("Basic Fire", function(bool)
+    getgenv().SaberFarmingStates.Fire.Basic = bool
+end)
+
+FireV2:Toggle("Advanced Fire", function(bool)
+    getgenv().SaberFarmingStates.Fire.Advanced = bool
+end)
+
+FireV2:Toggle("Master Fire", function(bool)
+    getgenv().SaberFarmingStates.Fire.Master = bool
+end)
+
+FireV2:Toggle("Grandmaster Fire", function(bool)
+    getgenv().SaberFarmingStates.Fire.Grandmaster = bool
+end)
+
+FireV2:Toggle("Start Farm", function(bool)
+    getgenv().SaberFarmingStates.FarmActive = bool
+end)
+
+-- =============================================================================
+-- 4. WATER v2 FOLDER
+-- =============================================================================
+local WaterV2 = Window:CreateFolder("Water v2")
+
+WaterV2:Toggle("Basic Water", function(bool)
+    getgenv().SaberFarmingStates.Water.Basic = bool
+end)
+
+WaterV2:Toggle("Advanced Water", function(bool)
+    getgenv().SaberFarmingStates.Water.Advanced = bool
+end)
+
+WaterV2:Toggle("Master Water", function(bool)
+    getgenv().SaberFarmingStates.Water.Master = bool
+end)
+
+WaterV2:Toggle("Grandmaster Water", function(bool)
+    getgenv().SaberFarmingStates.Water.Grandmaster = bool
+end)
+
+WaterV2:Toggle("Start Farm", function(bool)
+    getgenv().SaberFarmingStates.FarmActive = bool
+end)
+
+-- =============================================================================
+-- 5. STAGE DEFINITIONS
+-- =============================================================================
+local FireStages = {
+    {
+        key = "Basic",
+        area = game:GetService("Workspace").Gameplay.Map.ElementZones.Fire.Fire,
+        tp = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339)
+    },
+    {
+        key = "Advanced",
+        area = game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire,
+        tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+    },
+    {
+        key = "Master",
+        area = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire,
+        tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
+    },
+    {
+        key = "Grandmaster",
+        area = game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire,
+        tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
+    }
+}
+
+local WaterStages = {
+    {
+        key = "Basic",
+        area = game:GetService("Workspace").Gameplay.Map.ElementZones.Water.Water,
+        tp = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339)
+    },
+    {
+        key = "Advanced",
+        area = game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water,
+        tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+    },
+    {
+        key = "Master",
+        area = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water,
+        tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
+    },
+    {
+        key = "Grandmaster",
+        area = game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water,
+        tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134)
+    }
+}
+
+-- =============================================================================
+-- 6. HELPER FUNCTIONS
+-- =============================================================================
+local function getAreaEnemyHealths(area)
+    local list = {}
+
+    if not area then
+        return list
+    end
+
+    for _, obj in ipairs(area:GetDescendants()) do
+        if obj:IsA("Model") then
+            local hrp = obj:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local enemyHealth = hrp:FindFirstChild("EnemyHealth")
+                if enemyHealth then
+                    table.insert(list, enemyHealth)
+                end
+            end
+        end
+    end
+
+    return list
+end
+
+local function waitForAreaClear(area)
+    local enemies = getAreaEnemyHealths(area)
+
+    if #enemies == 0 then
+        return true
+    end
+
+    while true do
+        local allDead = true
+
+        for _, enemyHealth in ipairs(enemies) do
+            if enemyHealth.Value > 0 then
+                allDead = false
+                break
+            end
+        end
+
+        if allDead then
+            return true
+        end
+
+        task.wait(0.05)
+    end
+end
+
+local function teleportTo(cf)
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = cf
+    end
+end
+
+local function getEnabledStages(stageList, elementKey)
+    local enabled = {}
+
+    for _, stage in ipairs(stageList) do
+        if getgenv().SaberFarmingStates[elementKey][stage.key] then
+            table.insert(enabled, stage)
+        end
+    end
+
+    return enabled
+end
+
+local function attackCurrentArea()
+    -- Replace this with your actual attack script or skill cast.
+    -- Example:
+    -- if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool") then
+    --     LocalPlayer.Character:FindFirstChildOfClass("Tool"):Activate()
+    -- end
+end
+
+-- =============================================================================
+-- 7. FARM LOOP
+-- =============================================================================
+task.spawn(function()
+    while true do
+        if getgenv().SaberFarmingStates.FarmActive then
+            pcall(function()
+                local enabledFireStages = getEnabledStages(FireStages, "Fire")
+                local enabledWaterStages = getEnabledStages(WaterStages, "Water")
+
+                for _, stage in ipairs(enabledFireStages) do
+                    if not getgenv().SaberFarmingStates.FarmActive then
+                        break
+                    end
+
+                    waitForAreaClear(stage.area)
+                    teleportTo(stage.tp)
+                    task.wait(0.4)
+                    attackCurrentArea()
+                end
+
+                for _, stage in ipairs(enabledWaterStages) do
+                    if not getgenv().SaberFarmingStates.FarmActive then
+                        break
+                    end
+
+                    waitForAreaClear(stage.area)
+                    teleportTo(stage.tp)
+                    task.wait(0.4)
+                    attackCurrentArea()
+                end
+            end)
+        end
+
+        task.wait(0.2)
+    end
+end)
