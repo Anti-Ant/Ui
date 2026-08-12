@@ -80,37 +80,13 @@ task.spawn(function()
                     for _, golem in pairs(basicFire:GetChildren()) do
                         if golem.Name == "Fire Golem" then
                             local root = golem:FindFirstChild("HumanoidRootPart")
-                            local humanoid = golem:FindFirstChildOfClass("Humanoid")
-            
                             if root then
-                                -- 1. Apply your exact working true/false anchor state
                                 root.Anchored = getgenv().SaberFarmingStates.BringBasicFire
-                                                
-                                if getgenv().SaberFarmingStates.BringBasicFire then
-                                    -- 2. Strip its skeletal physics so it cannot walk or twitch away
-                                    if humanoid then
-                                        humanoid.WalkSpeed = 0
-                                        humanoid.PlatformStand = true -- Disables all walking animations instantly
-                                    end
-                    
-                                    -- 3. Kill any built-up linear velocity or momentum slides
-                                    root.Velocity = Vector3.new(0, 0, 0)
-                                    root.RotVelocity = Vector3.new(0, 0, 0)
-                    
-                                    -- 4. Force the lock directly onto your character coordinates
-                                    root.CFrame = myRoot.CFrame
-                                else
-                                    -- 5. Restore normal stats when you turn the toggle OFF
-                                    if humanoid then
-                                        humanoid.WalkSpeed = 16 -- Set this to the game's default golem speed
-                                        humanoid.PlatformStand = false
-                                    end
-                                end
+                                if getgenv().SaberFarmingStates.BringBasicFire then root.CFrame = myRoot.CFrame end
                             end
                         end
                     end
                 end
-
 
                 -- 2. Advanced Fire Golem
                 local advFire = game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire
@@ -127,7 +103,7 @@ task.spawn(function()
                 end
 
                 -- 3. Master Fire Golem
-                local masterFire = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire
+                local masterFire = game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire
                 if masterFire then
                     for _, golem in pairs(masterFire:GetChildren()) do
                         if golem.Name == "Fire Golem" then
@@ -184,7 +160,7 @@ task.spawn(function()
                 end
 
                 -- 3. Master Water Mobs
-                local masterWater = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water
+                local masterWater = game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water
                 if masterWater then
                     for _, mob in pairs(masterWater:GetChildren()) do
                         if mob.Name:find("Water Golem") then
