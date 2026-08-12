@@ -92,7 +92,7 @@ task.spawn(function()
                 end
 
                 -- 2. Advanced Fire Area
-                local advFire = game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire
+                local advFire = game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire
                 if advFire then
                     for _, mob in pairs(advFire:GetChildren()) do
                         if mob.Name == "Fire Golem" or mob.Name == "Advanced Fire Boss" then
@@ -110,7 +110,7 @@ task.spawn(function()
                 end
 
                 -- 3. Master Fire Area
-                local masterFire = game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire
+                local masterFire = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire
                 if masterFire then
                     for _, mob in pairs(masterFire:GetChildren()) do
                         if mob.Name == "Fire Golem" or mob.Name == "Master Fire Boss" then
@@ -128,7 +128,7 @@ task.spawn(function()
                 end
 
                 -- 4. Grandmaster Fire Area
-                local gmFire = game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire
+                local gmFire = game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire
                 if gmFire then
                     for _, mob in pairs(gmFire:GetChildren()) do
                         if mob.Name == "Fire Golem" or mob.Name == "GrandMaster Fire Boss" then
@@ -165,7 +165,7 @@ task.spawn(function()
                 end
 
                 -- 2. Advanced Water Area
-                local advWater = game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water
+                local advWater = game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water
                 if advWater then
                     for _, mob in pairs(advWater:GetChildren()) do
                         if mob.Name:find("Water") or mob.Name:find("Boss") then
@@ -183,7 +183,7 @@ task.spawn(function()
                 end
 
                 -- 3. Master Water Area
-                local masterWater = game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water
+                local masterWater = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water
                 if masterWater then
                     for _, mob in pairs(masterWater:GetChildren()) do
                         if mob.Name:find("Water") or mob.Name:find("Boss") then
@@ -201,7 +201,7 @@ task.spawn(function()
                 end
 
                 -- 4. Grandmaster Water Area
-                local gmWater = game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water
+                local gmWater = game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water
                 if gmWater then
                     for _, mob in pairs(gmWater:GetChildren()) do
                         if mob.Name:find("Water") or mob.Name:find("Boss") then
