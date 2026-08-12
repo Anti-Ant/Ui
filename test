@@ -81,8 +81,15 @@ task.spawn(function()
                         if golem.Name == "Fire Golem" then
                             local root = golem:FindFirstChild("HumanoidRootPart")
                             if root then
-                                root.Anchored = getgenv().SaberFarmingStates.BringBasicFire
-                                if getgenv().SaberFarmingStates.BringBasicFire then root.CFrame = myRoot.CFrame end
+                                if getgenv().SaberFarmingStates.BringBasicFire then
+                                    -- 1. Hard anchor them TRUE to override all walking physics
+                                    root.Anchored = true
+                                    -- 2. Snap them directly onto your player coordinates
+                                    root.CFrame = myRoot.CFrame
+                                else
+                                    -- 3. Clean release to let them walk normally when turned OFF
+                                    root.Anchored = false
+                                end
                             end
                         end
                     end
