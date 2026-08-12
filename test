@@ -135,7 +135,7 @@ task.spawn(function()
                 local basicWater = game:GetService("Workspace").Gameplay.Map.ElementZones.Water.Water
                 if basicWater then
                     for _, mob in pairs(basicWater:GetChildren()) do
-                        if mob.Name:find("Water") then
+                        if mob.Name:find("Water Golem") then
                             local root = mob:FindFirstChild("HumanoidRootPart")
                             if root then
                                 root.Anchored = getgenv().SaberFarmingStates.BringBasicWater
@@ -149,7 +149,7 @@ task.spawn(function()
                 local advWater = game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water
                 if advWater then
                     for _, mob in pairs(advWater:GetChildren()) do
-                        if mob.Name:find("Water") then
+                        if mob.Name:find("Water Golem") then
                             local root = mob:FindFirstChild("HumanoidRootPart")
                             if root then
                                 root.Anchored = getgenv().SaberFarmingStates.BringAdvancedWater
@@ -163,7 +163,7 @@ task.spawn(function()
                 local masterWater = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water
                 if masterWater then
                     for _, mob in pairs(masterWater:GetChildren()) do
-                        if mob.Name:find("Water") then
+                        if mob.Name:find("Water Golem") then
                             local root = mob:FindFirstChild("HumanoidRootPart")
                             if root then
                                 root.Anchored = getgenv().SaberFarmingStates.BringMasterWater
@@ -177,7 +177,7 @@ task.spawn(function()
                 local gmWater = game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water
                 if gmWater then
                     for _, mob in pairs(gmWater:GetChildren()) do
-                        if mob.Name:find("Water") then
+                        if mob.Name:find("Water Golem") then
                             local root = mob:FindFirstChild("HumanoidRootPart")
                             if root then
                                 root.Anchored = getgenv().SaberFarmingStates.BringGrandmasterWater
