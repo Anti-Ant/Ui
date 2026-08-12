@@ -1,0 +1,232 @@
+-- Load the Anti-Ant Mobile UI Library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Orion"))()
+
+local Window = AntLib:MakeWindow({
+    Name = "Saber Sim Hub",
+    SaveConfig = false,
+    IntroEnabled = true,
+    IntroText = "Saber Sim Hub"
+})
+
+-- Complete State Dictionary (Acts exactly like your local w switches)
+getgenv().SaberFarmingStates = {
+    -- Fire Toggles
+    BringBasicFire = false,
+    BringAdvancedFire = false,
+    BringMasterFire = false,
+    BringGrandmasterFire = false,
+    -- Water Toggles
+    BringBasicWater = false,
+    BringAdvancedWater = false,
+    BringMasterWater = false,
+    BringGrandmasterWater = false
+}
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+
+local FireTab = Window:MakeTab({
+    Name = "Fire Elements",
+    Icon = "rbxassetid://4384403532"
+})
+
+-- Add the Fire Toggles to the Fire Tab
+FireTab:AddToggle({
+    Name = "Basic Fire Golem",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringBasicFire = state 
+    end
+})
+
+FireTab:AddToggle({
+    Name = "Advanced Fire Golem",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringAdvancedFire = state 
+    end
+})
+
+FireTab:AddToggle({
+    Name = "Master Fire Golem",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringMasterFire = state 
+    end
+})
+
+FireTab:AddToggle({
+    Name = "Grandmaster Fire Golem",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringGrandmasterFire = state 
+    end
+})
+
+
+-- Create the Water Tab
+local WaterTab = Window:MakeTab({
+    Name = "Water Elements",
+    Icon = "rbxassetid://4384403532"
+})
+
+-- Add the Water Toggles to the Water Tab
+WaterTab:AddToggle({
+    Name = "Basic Water Mobs",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringBasicWater = state 
+    end
+})
+
+WaterTab:AddToggle({
+    Name = "Advanced Water Mobs",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringAdvancedWater = state 
+    end
+})
+
+WaterTab:AddToggle({
+    Name = "Master Water Mobs",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringMasterWater = state 
+    end
+})
+
+WaterTab:AddToggle({
+    Name = "Grandmaster Water Mobs",
+    Default = false,
+    Callback = function(state) 
+        getgenv().SaberFarmingStates.BringGrandmasterWater = state 
+    end
+})
+
+
+
+-- THE CORE ENGINE: Targets specific models inside their exact designated paths
+task.spawn(function()
+    while true do
+        pcall(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local myRoot = LocalPlayer.Character.HumanoidRootPart
+                
+                -- ==================== FIRE ZONES PROCESSING ====================
+                -- 1. Basic Fire Golem
+                local basicFire = game:GetService("Workspace").Gameplay.Map.ElementZones.Fire.Fire
+                if basicFire then
+                    for _, golem in pairs(basicFire:GetChildren()) do
+                        if golem.Name == "Fire Golem" then
+                            local root = golem:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringBasicFire
+                                if getgenv().SaberFarmingStates.BringBasicFire then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- 2. Advanced Fire Golem
+                local advFire = game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire
+                if advFire then
+                    for _, golem in pairs(advFire:GetChildren()) do
+                        if golem.Name == "Fire Golem" then
+                            local root = golem:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringAdvancedFire
+                                if getgenv().SaberFarmingStates.BringAdvancedFire then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- 3. Master Fire Golem
+                local masterFire = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire
+                if masterFire then
+                    for _, golem in pairs(masterFire:GetChildren()) do
+                        if golem.Name == "Fire Golem" then
+                            local root = golem:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringMasterFire
+                                if getgenv().SaberFarmingStates.BringMasterFire then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- 4. Grandmaster Fire Golem
+                local gmFire = game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire
+                if gmFire then
+                    for _, golem in pairs(gmFire:GetChildren()) do
+                        if golem.Name == "Fire Golem" then
+                            local root = golem:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringGrandmasterFire
+                                if getgenv().SaberFarmingStates.BringGrandmasterFire then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- ==================== WATER ZONES PROCESSING ====================
+                -- 1. Basic Water Mobs (Targets the parent folder ending in Water)
+                local basicWater = game:GetService("Workspace").Gameplay.Map.ElementZones.Water.Water
+                if basicWater then
+                    for _, mob in pairs(basicWater:GetChildren()) do
+                        if mob.Name:find("Water") then
+                            local root = mob:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringBasicWater
+                                if getgenv().SaberFarmingStates.BringBasicWater then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- 2. Advanced Water Mobs
+                local advWater = game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water
+                if advWater then
+                    for _, mob in pairs(advWater:GetChildren()) do
+                        if mob.Name:find("Water") then
+                            local root = mob:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringAdvancedWater
+                                if getgenv().SaberFarmingStates.BringAdvancedWater then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- 3. Master Water Mobs
+                local masterWater = game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water
+                if masterWater then
+                    for _, mob in pairs(masterWater:GetChildren()) do
+                        if mob.Name:find("Water") then
+                            local root = mob:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringMasterWater
+                                if getgenv().SaberFarmingStates.BringMasterWater then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+                -- 4. Grandmaster Water Mobs
+                local gmWater = game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water
+                if gmWater then
+                    for _, mob in pairs(gmWater:GetChildren()) do
+                        if mob.Name:find("Water") then
+                            local root = mob:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                root.Anchored = getgenv().SaberFarmingStates.BringGrandmasterWater
+                                if getgenv().SaberFarmingStates.BringGrandmasterWater then root.CFrame = myRoot.CFrame end
+                            end
+                        end
+                    end
+                end
+
+            end
+        end)
+        task.wait() -- Matches Luau physics step timing seamlessly
+    end
+end)
