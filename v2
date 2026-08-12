@@ -69,16 +69,13 @@ end)
 local function pullEnemiesToPlayer(area, myRoot)
     if not area or not myRoot then return end
 
-    for _, obj in ipairs(area:GetDescendants()) do
-        if obj:IsA("Model") then
-            local hrp = obj:FindFirstChild("HumanoidRootPart")
+    -- Match Untitled-2 behaviour: anchor and set CFrame directly for each mob model
+    for _, mob in ipairs(area:GetChildren()) do
+        if mob:IsA("Model") then
+            local hrp = mob:FindFirstChild("HumanoidRootPart")
             if hrp then
-                local enemyHealth = hrp:FindFirstChild("EnemyHealth")
-                if enemyHealth and enemyHealth.Value > 0 then
-                    hrp.Anchored = true
-                    local offset = Vector3.new(math.random(-3,3), 0, math.random(-3,3))
-                    hrp.CFrame = myRoot.CFrame + offset
-                end
+                hrp.Anchored = true
+                hrp.CFrame = myRoot.CFrame
             end
         end
     end
@@ -97,14 +94,14 @@ local function unanchorAreaEnemies(area)
     end
 end
 
+-- Loop which continuously tries to pull enabled-area mobs to the player.
 task.spawn(function()
     while true do
-        pcall(function()
+        local success, err = pcall(function()
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local myRoot = LocalPlayer.Character.HumanoidRootPart
 
-                -- ==================== FIRE ZONES PROCESSING ====================
-                -- 1. Basic Fire Area
+                -- FIRE AREAS
                 local basicFire = game:GetService("Workspace").Gameplay.Map.ElementZones.Fire.Fire
                 if basicFire then
                     if getgenv().SaberFarmingStates.BringBasicFire then
@@ -114,7 +111,6 @@ task.spawn(function()
                     end
                 end
 
-                -- 2. Advanced Fire Area
                 local advFire = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire)
                 if advFire then
                     if getgenv().SaberFarmingStates.BringAdvancedFire then
@@ -124,7 +120,6 @@ task.spawn(function()
                     end
                 end
 
-                -- 3. Master Fire Area
                 local masterFire = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire)
                 if masterFire then
                     if getgenv().SaberFarmingStates.BringMasterFire then
@@ -134,7 +129,6 @@ task.spawn(function()
                     end
                 end
 
-                -- 4. Grandmaster Fire Area
                 local gmFire = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire)
                 if gmFire then
                     if getgenv().SaberFarmingStates.BringGrandmasterFire then
@@ -144,8 +138,7 @@ task.spawn(function()
                     end
                 end
 
-                -- ==================== WATER ZONES PROCESSING ====================
-                -- 1. Basic Water Area
+                -- WATER AREAS
                 local basicWater = game:GetService("Workspace").Gameplay.Map.ElementZones.Water.Water
                 if basicWater then
                     if getgenv().SaberFarmingStates.BringBasicWater then
@@ -155,7 +148,6 @@ task.spawn(function()
                     end
                 end
 
-                -- 2. Advanced Water Area
                 local advWater = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water)
                 if advWater then
                     if getgenv().SaberFarmingStates.BringAdvancedWater then
@@ -165,7 +157,6 @@ task.spawn(function()
                     end
                 end
 
-                -- 3. Master Water Area
                 local masterWater = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water)
                 if masterWater then
                     if getgenv().SaberFarmingStates.BringMasterWater then
@@ -175,7 +166,6 @@ task.spawn(function()
                     end
                 end
 
-                -- 4. Grandmaster Water Area
                 local gmWater = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water)
                 if gmWater then
                     if getgenv().SaberFarmingStates.BringGrandmasterWater then
@@ -186,6 +176,12 @@ task.spawn(function()
                 end
             end
         end)
-        task.wait()
+
+        if not success then
+            warn("[FarmLoop] Error in pull loop:", err)
+        end
+
+        -- short wait to avoid spamming
+        task.wait(0.08)
     end
 end)
