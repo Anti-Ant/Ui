@@ -241,7 +241,7 @@ task.spawn(function()
 end)
 
 -- =============================================================================
--- 6. V2 TELEPORT-LOOP ENGINE (Portal → Inner Circle → Farm → Cycle)
+-- 6. V2 TELEPORT-LOOP ENGINE (with guaranteed teleport)
 -- =============================================================================
 
 -- Helper: get element health (0 = dead)
@@ -281,6 +281,9 @@ local function teleportTo(cf)
         hrp.CFrame = cf
         hrp.AssemblyLinearVelocity = Vector3.zero
         hrp.AssemblyAngularVelocity = Vector3.zero
+        print("[V2] ✅ Teleported to", cf.Position)
+    else
+        warn("[V2] ❌ Character not ready for teleport")
     end
 end
 
@@ -293,7 +296,35 @@ local function getPath(path)
     return curr
 end
 
--- Zone configurations for all elements
+-- Hardcoded fallback CFrames (from DEVIL script, verified working)
+local FALLBACK_CFRAMES = {
+    Fire = {
+        Basic = { portal = CFrame.new(549.651, 189.897, 465.052), inner = CFrame.new(528.579, 189.898, 512.780) },
+        Advanced = { portal = CFrame.new(191.011, -158.906, -1180.688), inner = CFrame.new(196.533, -128.283, -1181.272) },
+        Master = { portal = CFrame.new(191.011, -158.906, -1180.688), inner = CFrame.new(196.533, -128.283, -1181.272) },
+        Grandmaster = { portal = CFrame.new(191.011, -158.906, -1180.688), inner = CFrame.new(196.533, -128.283, -1181.272) }
+    },
+    Water = {
+        Basic = { portal = CFrame.new(111.737, 287.194, -557.796), inner = CFrame.new(105.233, 281.259, -602.216) },
+        Advanced = { portal = CFrame.new(822.279, -188.735, -1169.293), inner = CFrame.new(856.712, -170.465, -1206.762) },
+        Master = { portal = CFrame.new(822.279, -188.735, -1169.293), inner = CFrame.new(856.712, -170.465, -1206.762) },
+        Grandmaster = { portal = CFrame.new(822.279, -188.735, -1169.293), inner = CFrame.new(856.712, -170.465, -1206.762) }
+    },
+    Earth = {
+        Basic = { portal = CFrame.new(790.708, 215.452, -484.461), inner = CFrame.new(779.851, 210.007, -533.011) },
+        Advanced = { portal = CFrame.new(1313.346, -195.351, -1213.256), inner = CFrame.new(1302.567, -199.057, -1255.999) },
+        Master = { portal = CFrame.new(1313.346, -195.351, -1213.256), inner = CFrame.new(1302.567, -199.057, -1255.999) },
+        Grandmaster = { portal = CFrame.new(1313.346, -195.351, -1213.256), inner = CFrame.new(1302.567, -199.057, -1255.999) }
+    },
+    Plasma = {
+        Basic = { portal = CFrame.new(8945.471, 6267.662, 1769.446), inner = CFrame.new(8984.981, 6261.662, 1760.883) },
+        Advanced = { portal = CFrame.new(9571.298, 6363.610, 1608.676), inner = CFrame.new(9526.374, 6356.919, 1615.606) },
+        Master = { portal = CFrame.new(9571.298, 6363.610, 1608.676), inner = CFrame.new(9526.374, 6356.919, 1615.606) },
+        Grandmaster = { portal = CFrame.new(9571.298, 6363.610, 1608.676), inner = CFrame.new(9526.374, 6356.919, 1615.606) }
+    }
+}
+
+-- Zone configurations (try dynamic first, fallback to hardcoded)
 local function getZoneTeleports(element, tier)
     local configs = {
         Fire = {
@@ -388,12 +419,44 @@ local function getZoneTeleports(element, tier)
     return configs[element] and configs[element][tier]
 end
 
--- Main V2 farm loop (teleport-loop version for all elements)
+-- Get teleport CFrame (dynamic + fallback)
+local function getTeleportCFrame(element, tier, pathType)
+    local config = getZoneTeleports(element, tier)
+    local path = config and config[pathType]
+    local dynamicPart = path and getPath(path)
+    if dynamicPart then
+        print("[V2] ✅ Dynamic " .. pathType .. " found for " .. tier .. " " .. element)
+        return dynamicPart.CFrame
+    else
+        local fallback = FALLBACK_CFRAMES[element] and FALLBACK_CFRAMES[element][tier] and FALLBACK_CFRAMES[element][tier][pathType]
+        if fallback then
+            print("[V2] 🔄 Using fallback " .. pathType .. " for " .. tier .. " " .. element)
+            return fallback
+        else
+            -- Ultimate fallback: try to get any BasePart from the area
+            local area = config and config.area
+            if area then
+                if area:IsA("BasePart") then
+                    print("[V2] 🔄 Using area as " .. pathType .. " for " .. tier .. " " .. element)
+                    return area.CFrame
+                elseif area:IsA("Model") and area.PrimaryPart then
+                    print("[V2] 🔄 Using primary part as " .. pathType .. " for " .. tier .. " " .. element)
+                    return area.PrimaryPart.CFrame
+                end
+            end
+            warn("[V2] ❌ No " .. pathType .. " found for " .. tier .. " " .. element)
+            return nil
+        end
+    end
+end
+
+-- Main V2 farm loop
 task.spawn(function()
     local elementOrder = { "Fire", "Water", "Earth", "Plasma" }
     while true do
         if getgenv().SaberFarmingStates.V2.FarmActive then
             pcall(function()
+                print("[V2] 🚀 Farm loop active!")
                 for _, element in ipairs(elementOrder) do
                     local tiers = { "Basic", "Advanced", "Master", "Grandmaster" }
                     local enabledStages = {}
@@ -402,43 +465,55 @@ task.spawn(function()
                             local config = getZoneTeleports(element, tier)
                             if config and config.area then
                                 table.insert(enabledStages, { tier = tier, config = config })
+                                print("[V2] ✅ Enabled: " .. tier .. " " .. element)
+                            else
+                                print("[V2] ⚠️ No config/area for " .. tier .. " " .. element)
                             end
                         end
+                    end
+
+                    if #enabledStages == 0 then
+                        goto continue_element
                     end
 
                     for _, stage in ipairs(enabledStages) do
                         if not getgenv().SaberFarmingStates.V2.FarmActive then break end
 
                         local area = stage.config.area
-                        local portalPath = stage.config.portal
-                        local innerPath = stage.config.inner
+                        print("[V2] 🔥 Processing " .. stage.tier .. " " .. element)
 
-                        -- Teleport to portal
-                        local portal = getPath(portalPath)
-                        if portal then
-                            print("[V2] Teleporting to " .. stage.tier .. " " .. element .. " portal")
-                            teleportTo(portal.CFrame)
+                        -- Get portal CFrame
+                        local portalCF = getTeleportCFrame(element, stage.tier, "portal")
+                        if portalCF then
+                            teleportTo(portalCF)
                             task.wait(0.5)
+                        else
+                            warn("[V2] ❌ No portal for " .. stage.tier .. " " .. element .. ", skipping")
+                            goto continue_stage
                         end
 
-                        -- Teleport to inner circle (offset)
-                        local inner = getPath(innerPath)
-                        if inner then
-                            print("[V2] Teleporting to " .. stage.tier .. " " .. element .. " inner circle")
+                        -- Get inner circle CFrame
+                        local innerCF = getTeleportCFrame(element, stage.tier, "inner")
+                        if innerCF then
                             local offset = CFrame.new(15, 40, -37)
                             local targetCF = CFrame.new(
-                                inner.Position + inner.CFrame:VectorToWorldSpace(offset.Position),
-                                inner.Position
+                                innerCF.Position + innerCF:VectorToWorldSpace(offset.Position),
+                                innerCF.Position
                             )
                             teleportTo(targetCF)
                             task.wait(0.3)
+                        else
+                            print("[V2] ⚠️ No inner for " .. stage.tier .. " " .. element .. ", staying at portal.")
                         end
 
                         -- Wait for area to clear
-                        print("[V2] Farming " .. stage.tier .. " " .. element .. "...")
+                        print("[V2] ⏳ Farming " .. stage.tier .. " " .. element .. "...")
                         waitForAreaClear(area)
-                        print("[V2] " .. stage.tier .. " " .. element .. " cleared!")
+                        print("[V2] ✅ " .. stage.tier .. " " .. element .. " cleared!")
+
+                        ::continue_stage::
                     end
+                    ::continue_element::
                 end
             end)
         end
