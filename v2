@@ -99,6 +99,26 @@ PlasmaV2:Toggle("Advanced Plasma (v2)", function(bool) getgenv().SaberFarmingSta
 PlasmaV2:Toggle("Master Plasma (v2)", function(bool) getgenv().SaberFarmingStates.V2.Plasma.Master = bool end)
 PlasmaV2:Toggle("Grandmaster Plasma (v2)", function(bool) getgenv().SaberFarmingStates.V2.Plasma.Grandmaster = bool end)
 
+
+
+
+local TestFolder = Window:CreateFolder("Test")
+TestFolder:Button("Teleport to Spawn", function()
+    local cf = CFrame.new(500, 190, 150)  -- known safe spawn
+    pcall(function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = cf
+            print("✅ Teleported to spawn!")
+        else
+            warn("❌ Character or HumanoidRootPart missing")
+        end
+    end)
+end)
+
+
+
+
+
 -- Master Toggle (starts the entire V2 farm loop)
 local MasterV2 = Window:CreateFolder("V2 Control")
 MasterV2:Toggle("Start Farm (v2)", function(bool)
