@@ -10,7 +10,6 @@ getgenv().SaberFarmingStates = {
     BringAdvancedWater = false,
     BringMasterWater = false,
     BringGrandmasterWater = false,
-    -- v2 selection + master farm toggle
     V2 = {
         Fire = { Basic = false, Advanced = false, Master = false, Grandmaster = false },
         Water = { Basic = false, Advanced = false, Master = false, Grandmaster = false },
@@ -125,15 +124,16 @@ local function unanchorAreaEnemies(area)
     end
 end
 
--- Original pull loop (keep this as-is)
+-- Original pull loop (updated to ONLY use RegionsLoaded)
 task.spawn(function()
     while true do
         local success, err = pcall(function()
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local myRoot = LocalPlayer.Character.HumanoidRootPart
+                local RegionsLoaded = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("RegionsLoaded")
 
                 -- FIRE AREAS
-                local basicFire = game:GetService("Workspace").Gameplay.Map.ElementZones.Fire.Fire
+                local basicFire = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("Map") and workspace.Gameplay.Map:FindFirstChild("ElementZones") and workspace.Gameplay.Map.ElementZones:FindFirstChild("Fire") and workspace.Gameplay.Map.ElementZones.Fire:FindFirstChild("Fire")
                 if basicFire then
                     if getgenv().SaberFarmingStates.BringBasicFire then
                         pullEnemiesToPlayer(basicFire, myRoot)
@@ -142,7 +142,7 @@ task.spawn(function()
                     end
                 end
 
-                local advFire = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire)
+                local advFire = RegionsLoaded and RegionsLoaded:FindFirstChild("AdvancedFireArea") and RegionsLoaded.AdvancedFireArea:FindFirstChild("Important") and RegionsLoaded.AdvancedFireArea.Important:FindFirstChild("Fire")
                 if advFire then
                     if getgenv().SaberFarmingStates.BringAdvancedFire then
                         pullEnemiesToPlayer(advFire, myRoot)
@@ -151,7 +151,7 @@ task.spawn(function()
                     end
                 end
 
-                local masterFire = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire)
+                local masterFire = RegionsLoaded and RegionsLoaded:FindFirstChild("MasterFireArea") and RegionsLoaded.MasterFireArea:FindFirstChild("Important") and RegionsLoaded.MasterFireArea.Important:FindFirstChild("Fire")
                 if masterFire then
                     if getgenv().SaberFarmingStates.BringMasterFire then
                         pullEnemiesToPlayer(masterFire, myRoot)
@@ -160,7 +160,7 @@ task.spawn(function()
                     end
                 end
 
-                local gmFire = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire)
+                local gmFire = RegionsLoaded and RegionsLoaded:FindFirstChild("GrandmasterFireArea") and RegionsLoaded.GrandmasterFireArea:FindFirstChild("Important") and RegionsLoaded.GrandmasterFireArea.Important:FindFirstChild("Fire")
                 if gmFire then
                     if getgenv().SaberFarmingStates.BringGrandmasterFire then
                         pullEnemiesToPlayer(gmFire, myRoot)
@@ -170,7 +170,7 @@ task.spawn(function()
                 end
 
                 -- WATER AREAS
-                local basicWater = game:GetService("Workspace").Gameplay.Map.ElementZones.Water.Water
+                local basicWater = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("Map") and workspace.Gameplay.Map:FindFirstChild("ElementZones") and workspace.Gameplay.Map.ElementZones:FindFirstChild("Water") and workspace.Gameplay.Map.ElementZones.Water:FindFirstChild("Water")
                 if basicWater then
                     if getgenv().SaberFarmingStates.BringBasicWater then
                         pullEnemiesToPlayer(basicWater, myRoot)
@@ -179,7 +179,7 @@ task.spawn(function()
                     end
                 end
 
-                local advWater = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water)
+                local advWater = RegionsLoaded and RegionsLoaded:FindFirstChild("AdvancedWaterArea") and RegionsLoaded.AdvancedWaterArea:FindFirstChild("Important") and RegionsLoaded.AdvancedWaterArea.Important:FindFirstChild("Water")
                 if advWater then
                     if getgenv().SaberFarmingStates.BringAdvancedWater then
                         pullEnemiesToPlayer(advWater, myRoot)
@@ -188,7 +188,7 @@ task.spawn(function()
                     end
                 end
 
-                local masterWater = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water)
+                local masterWater = RegionsLoaded and RegionsLoaded:FindFirstChild("MasterWaterArea") and RegionsLoaded.MasterWaterArea:FindFirstChild("Important") and RegionsLoaded.MasterWaterArea.Important:FindFirstChild("Water")
                 if masterWater then
                     if getgenv().SaberFarmingStates.BringMasterWater then
                         pullEnemiesToPlayer(masterWater, myRoot)
@@ -197,7 +197,7 @@ task.spawn(function()
                     end
                 end
 
-                local gmWater = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water)
+                local gmWater = RegionsLoaded and RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and RegionsLoaded.GrandmasterWaterArea:FindFirstChild("Important") and RegionsLoaded.GrandmasterWaterArea.Important:FindFirstChild("Water")
                 if gmWater then
                     if getgenv().SaberFarmingStates.BringGrandmasterWater then
                         pullEnemiesToPlayer(gmWater, myRoot)
@@ -229,7 +229,6 @@ local function getElementHealth(area)
                 if ev and ev.Value then
                     return ev.Value
                 end
-                -- Fallback: check Humanoid
                 local hum = obj:FindFirstChildOfClass("Humanoid")
                 if hum then
                     return hum.Health
@@ -240,7 +239,6 @@ local function getElementHealth(area)
     return 0
 end
 
--- Helper: wait until area is clear (health = 0)
 local function waitForAreaClear(area)
     if not area then return true end
     local timeout = 120
@@ -258,7 +256,6 @@ local function waitForAreaClear(area)
     end
 end
 
--- Helper: teleport player to a CFrame
 local function teleportTo(cf)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = cf
@@ -267,7 +264,7 @@ local function teleportTo(cf)
     end
 end
 
--- Helper: get a zone's portal and inner circle
+-- Helper: get a zone's portal and inner circle (ONLY from RegionsLoaded)
 local function getZoneTeleports(element, tier)
     local configs = {
         Fire = {
@@ -279,17 +276,17 @@ local function getZoneTeleports(element, tier)
             Advanced = {
                 portal = "Gameplay.RegionsLoaded.AdvancedFireArea.Important.Teleport.FireTeleportPart2",
                 inner = "Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire.InnerCircle",
-                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire)
+                area = workspace.Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire
             },
             Master = {
                 portal = "Gameplay.RegionsLoaded.MasterFireArea.Important.Teleport.FireTeleportPart2",
                 inner = "Gameplay.RegionsLoaded.MasterFireArea.Important.Fire.InnerCircle",
-                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire)
+                area = workspace.Gameplay.RegionsLoaded.MasterFireArea.Important.Fire
             },
             Grandmaster = {
                 portal = "Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Teleport.FireTeleportPart2",
                 inner = "Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire.InnerCircle",
-                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire)
+                area = workspace.Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire
             }
         },
         Water = {
@@ -301,24 +298,24 @@ local function getZoneTeleports(element, tier)
             Advanced = {
                 portal = "Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Teleport.WaterTeleportPart2",
                 inner = "Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water.InnerCircle",
-                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water)
+                area = workspace.Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water
             },
             Master = {
                 portal = "Gameplay.RegionsLoaded.MasterWaterArea.Important.Teleport.WaterTeleportPart2",
                 inner = "Gameplay.RegionsLoaded.MasterWaterArea.Important.Water.InnerCircle",
-                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water)
+                area = workspace.Gameplay.RegionsLoaded.MasterWaterArea.Important.Water
             },
             Grandmaster = {
                 portal = "Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Teleport.WaterTeleportPart2",
                 inner = "Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water.InnerCircle",
-                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water)
+                area = workspace.Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water
             }
         }
     }
     return configs[element] and configs[element][tier]
 end
 
--- Helper: get a path from workspace
+-- Helper: get a path from workspace (only uses workspace)
 local function getPath(path)
     local curr = workspace
     for part in path:gmatch("[^%.]+") do
@@ -365,7 +362,6 @@ task.spawn(function()
                     local portalPath = stage.config.portal
                     local innerPath = stage.config.inner
 
-                    -- Step 1: Teleport to portal
                     local portal = getPath(portalPath)
                     if portal then
                         print("[V2] Teleporting to " .. stage.tier .. " Fire portal")
@@ -373,7 +369,6 @@ task.spawn(function()
                         task.wait(0.5)
                     end
 
-                    -- Step 2: Teleport to inner circle (with offset)
                     local inner = getPath(innerPath)
                     if inner then
                         print("[V2] Teleporting to " .. stage.tier .. " Fire inner circle")
@@ -386,7 +381,6 @@ task.spawn(function()
                         task.wait(0.3)
                     end
 
-                    -- Step 3: Wait for area to clear (health = 0)
                     print("[V2] Farming " .. stage.tier .. " Fire...")
                     waitForAreaClear(area)
                     print("[V2] " .. stage.tier .. " Fire cleared!")
@@ -400,7 +394,6 @@ task.spawn(function()
                     local portalPath = stage.config.portal
                     local innerPath = stage.config.inner
 
-                    -- Step 1: Teleport to portal
                     local portal = getPath(portalPath)
                     if portal then
                         print("[V2] Teleporting to " .. stage.tier .. " Water portal")
@@ -408,7 +401,6 @@ task.spawn(function()
                         task.wait(0.5)
                     end
 
-                    -- Step 2: Teleport to inner circle (with offset)
                     local inner = getPath(innerPath)
                     if inner then
                         print("[V2] Teleporting to " .. stage.tier .. " Water inner circle")
@@ -421,7 +413,6 @@ task.spawn(function()
                         task.wait(0.3)
                     end
 
-                    -- Step 3: Wait for area to clear (health = 0)
                     print("[V2] Farming " .. stage.tier .. " Water...")
                     waitForAreaClear(area)
                     print("[V2] " .. stage.tier .. " Water cleared!")
