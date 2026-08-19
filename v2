@@ -1,3 +1,6 @@
+-- =============================================================================
+-- 1. STATE INITIALIZATION (Switches for Fire, Water, Earth, Plasma)
+-- =============================================================================
 getgenv().SaberFarmingStates = {
     BringBasicFire = false,
     BringAdvancedFire = false,
@@ -96,12 +99,30 @@ PlasmaV2:Toggle("Advanced Plasma (v2)", function(bool) getgenv().SaberFarmingSta
 PlasmaV2:Toggle("Master Plasma (v2)", function(bool) getgenv().SaberFarmingStates.V2.Plasma.Master = bool end)
 PlasmaV2:Toggle("Grandmaster Plasma (v2)", function(bool) getgenv().SaberFarmingStates.V2.Plasma.Grandmaster = bool end)
 
+-- Master Toggle (starts the entire V2 farm loop)
+local MasterV2 = Window:CreateFolder("V2 Control")
+MasterV2:Toggle("Start Farm (v2)", function(bool)
+    getgenv().SaberFarmingStates.V2.FarmActive = bool
+end)
 
+-- Debug button to print state
+local DebugFolder = Window:CreateFolder("Debug")
+DebugFolder:Button("Print V2 State", function()
+    print("===== V2 STATE =====")
+    print("FarmActive:", getgenv().SaberFarmingStates.V2.FarmActive)
+    for _, element in ipairs({"Fire", "Water", "Earth", "Plasma"}) do
+        print("  " .. element .. ":")
+        for _, tier in ipairs({"Basic", "Advanced", "Master", "Grandmaster"}) do
+            local val = getgenv().SaberFarmingStates.V2[element][tier]
+            print("    " .. tier .. ": " .. tostring(val))
+        end
+    end
+    print("===================")
+end)
 
-
-local TestFolder = Window:CreateFolder("Test")
-TestFolder:Button("Teleport to Spawn", function()
-    local cf = CFrame.new(500, 190, 150)  -- known safe spawn
+-- Manual teleport test
+DebugFolder:Button("Teleport to Spawn", function()
+    local cf = CFrame.new(500, 190, 150)
     pcall(function()
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             LocalPlayer.Character.HumanoidRootPart.CFrame = cf
@@ -110,16 +131,6 @@ TestFolder:Button("Teleport to Spawn", function()
             warn("❌ Character or HumanoidRootPart missing")
         end
     end)
-end)
-
-
-
-
-
--- Master Toggle (starts the entire V2 farm loop)
-local MasterV2 = Window:CreateFolder("V2 Control")
-MasterV2:Toggle("Start Farm (v2)", function(bool)
-    getgenv().SaberFarmingStates.V2.FarmActive = bool
 end)
 
 -- =============================================================================
@@ -199,7 +210,6 @@ task.spawn(function()
                 if basicEarth then
                     if getgenv().SaberFarmingStates.BringBasicEarth then pullEnemiesToPlayer(basicEarth, myRoot) else unanchorAreaEnemies(basicEarth) end
                 end
-                -- Note: Earth's advanced+ are inside "Model" subfolder?
                 local advEarth = RegionsLoaded and RegionsLoaded:FindFirstChild("AdvancedEarthArea") and RegionsLoaded.AdvancedEarthArea:FindFirstChild("Important") and RegionsLoaded.AdvancedEarthArea.Important:FindFirstChild("Earth")
                 if advEarth then
                     if getgenv().SaberFarmingStates.BringAdvancedEarth then pullEnemiesToPlayer(advEarth, myRoot) else unanchorAreaEnemies(advEarth) end
