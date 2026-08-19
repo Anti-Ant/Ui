@@ -230,85 +230,90 @@ spawn(function()
 end)
 
 -- =============================================================================
--- 6. V2 TELEPORT-LOOP ENGINE (HARDCODED CFrames – NO PATH LOOKUPS)
+-- 6. V2 TELEPORT-LOOP ENGINE (Dynamic + Fallback + Health Detection)
 -- =============================================================================
 
--- Hardcoded CFrames for all elements and tiers
-local HARDCODED = {
+-- Helper: get a path from workspace
+local function getPath(path)
+    local curr = workspace
+    for part in path:gmatch("[^%.]+") do
+        curr = curr:FindFirstChild(part)
+        if not curr then return nil end
+    end
+    return curr
+end
+
+-- Hardcoded fallback CFrames (from DEVIL script)
+local FALLBACK_CFRAMES = {
     Fire = {
-        Basic = {
-            portal = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339),
-            inner = CFrame.new(511.73, 189.87, 473.64)
-        },
-        Advanced = {
-            portal = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1),
-            inner = CFrame.new(-116.36, 36.07, 718.17)
-        },
-        Master = {
-            portal = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134),
-            inner = CFrame.new(-792.12, 91.00, 690.89)
-        },
-        Grandmaster = {
-            portal = CFrame.new(191.011, -158.906, -1180.688),
-            inner = CFrame.new(196.533, -128.283, -1181.272)
-        }
+        Basic = { portal = CFrame.new(549.651, 189.897, 465.052), inner = CFrame.new(528.579, 189.898, 512.780) },
+        Advanced = { portal = CFrame.new(191.011, -158.906, -1180.688), inner = CFrame.new(196.533, -128.283, -1181.272) },
+        Master = { portal = CFrame.new(191.011, -158.906, -1180.688), inner = CFrame.new(196.533, -128.283, -1181.272) },
+        Grandmaster = { portal = CFrame.new(191.011, -158.906, -1180.688), inner = CFrame.new(196.533, -128.283, -1181.272) }
     },
     Water = {
-        Basic = {
-            portal = CFrame.new(111.737, 287.194, -557.796),
-            inner = CFrame.new(105.233, 281.259, -602.216)
-        },
-        Advanced = {
-            portal = CFrame.new(822.279, -188.735, -1169.293),
-            inner = CFrame.new(856.712, -170.465, -1206.762)
-        },
-        Master = {
-            portal = CFrame.new(822.279, -188.735, -1169.293),
-            inner = CFrame.new(856.712, -170.465, -1206.762)
-        },
-        Grandmaster = {
-            portal = CFrame.new(822.279, -188.735, -1169.293),
-            inner = CFrame.new(856.712, -170.465, -1206.762)
-        }
+        Basic = { portal = CFrame.new(111.737, 287.194, -557.796), inner = CFrame.new(105.233, 281.259, -602.216) },
+        Advanced = { portal = CFrame.new(822.279, -188.735, -1169.293), inner = CFrame.new(856.712, -170.465, -1206.762) },
+        Master = { portal = CFrame.new(822.279, -188.735, -1169.293), inner = CFrame.new(856.712, -170.465, -1206.762) },
+        Grandmaster = { portal = CFrame.new(822.279, -188.735, -1169.293), inner = CFrame.new(856.712, -170.465, -1206.762) }
     },
     Earth = {
-        Basic = {
-            portal = CFrame.new(790.708, 215.452, -484.461),
-            inner = CFrame.new(779.851, 210.007, -533.011)
-        },
-        Advanced = {
-            portal = CFrame.new(1313.346, -195.351, -1213.256),
-            inner = CFrame.new(1302.567, -199.057, -1255.999)
-        },
-        Master = {
-            portal = CFrame.new(1313.346, -195.351, -1213.256),
-            inner = CFrame.new(1302.567, -199.057, -1255.999)
-        },
-        Grandmaster = {
-            portal = CFrame.new(1313.346, -195.351, -1213.256),
-            inner = CFrame.new(1302.567, -199.057, -1255.999)
-        }
+        Basic = { portal = CFrame.new(790.708, 215.452, -484.461), inner = CFrame.new(779.851, 210.007, -533.011) },
+        Advanced = { portal = CFrame.new(1313.346, -195.351, -1213.256), inner = CFrame.new(1302.567, -199.057, -1255.999) },
+        Master = { portal = CFrame.new(1313.346, -195.351, -1213.256), inner = CFrame.new(1302.567, -199.057, -1255.999) },
+        Grandmaster = { portal = CFrame.new(1313.346, -195.351, -1213.256), inner = CFrame.new(1302.567, -199.057, -1255.999) }
     },
     Plasma = {
-        Basic = {
-            portal = CFrame.new(8945.471, 6267.662, 1769.446),
-            inner = CFrame.new(8984.981, 6261.662, 1760.883)
-        },
-        Advanced = {
-            portal = CFrame.new(9571.298, 6363.610, 1608.676),
-            inner = CFrame.new(9526.374, 6356.919, 1615.606)
-        },
-        Master = {
-            portal = CFrame.new(9571.298, 6363.610, 1608.676),
-            inner = CFrame.new(9526.374, 6356.919, 1615.606)
-        },
-        Grandmaster = {
-            portal = CFrame.new(9571.298, 6363.610, 1608.676),
-            inner = CFrame.new(9526.374, 6356.919, 1615.606)
-        }
+        Basic = { portal = CFrame.new(8945.471, 6267.662, 1769.446), inner = CFrame.new(8984.981, 6261.662, 1760.883) },
+        Advanced = { portal = CFrame.new(9571.298, 6363.610, 1608.676), inner = CFrame.new(9526.374, 6356.919, 1615.606) },
+        Master = { portal = CFrame.new(9571.298, 6363.610, 1608.676), inner = CFrame.new(9526.374, 6356.919, 1615.606) },
+        Grandmaster = { portal = CFrame.new(9571.298, 6363.610, 1608.676), inner = CFrame.new(9526.374, 6356.919, 1615.606) }
     }
 }
 
+-- Get teleport CFrame: dynamic first, then fallback
+local function getTeleportCFrame(element, tier, pathType)
+    -- Build dynamic path
+    local areaName = tier .. element .. "Area"  -- e.g., "AdvancedFireArea", "MasterWaterArea"
+    local teleportPath
+    if tier == "Basic" then
+        -- Basic uses Map.ElementZones
+        local mapPath = "Gameplay.Map.ElementZones." .. element .. "." .. element .. "Teleport." .. element .. "TeleportPart1"
+        teleportPath = pathType == "portal" and mapPath or nil
+        -- For inner circle: Gameplay.Map.ElementZones.<element>.InnerCircle
+        if pathType == "inner" then
+            teleportPath = "Gameplay.Map.ElementZones." .. element .. ".InnerCircle"
+        end
+    else
+        -- Advanced, Master, Grandmaster use RegionsLoaded
+        local base = "Gameplay.RegionsLoaded." .. areaName .. ".Important."
+        if pathType == "portal" then
+            teleportPath = base .. "Teleport." .. element .. "TeleportPart2"  -- they use Part2 for advanced+
+        else -- inner
+            teleportPath = base .. element .. ".InnerCircle"
+        end
+    end
+
+    if teleportPath then
+        local part = getPath(teleportPath)
+        if part then
+            print("[V2] ✅ Dynamic " .. pathType .. " found for " .. tier .. " " .. element)
+            return part.CFrame
+        end
+    end
+
+    -- Fallback to hardcoded
+    local fallback = FALLBACK_CFRAMES[element] and FALLBACK_CFRAMES[element][tier] and FALLBACK_CFRAMES[element][tier][pathType]
+    if fallback then
+        print("[V2] 🔄 Using fallback " .. pathType .. " for " .. tier .. " " .. element)
+        return fallback
+    end
+
+    warn("[V2] ❌ No " .. pathType .. " found for " .. tier .. " " .. element)
+    return nil
+end
+
+-- Teleport function
 local function teleportTo(cf)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         local hrp = LocalPlayer.Character.HumanoidRootPart
@@ -321,24 +326,31 @@ local function teleportTo(cf)
     end
 end
 
+-- Health detection: wait until area's enemies are dead
 local function waitForAreaClear(area)
     if not area then return true end
     local timeout = 120
     local start = tick()
     while true do
-        local health = 0
+        local anyAlive = false
         for _, obj in ipairs(area:GetDescendants()) do
             if obj:IsA("Model") then
                 local hrp = obj:FindFirstChild("HumanoidRootPart")
                 if hrp then
                     local ev = hrp:FindFirstChild("EnemyHealth")
-                    if ev and ev.Value then health = ev.Value break end
-                    local hum = obj:FindFirstChildOfClass("Humanoid")
-                    if hum then health = hum.Health break end
+                    if ev and ev.Value then
+                        if ev.Value > 0 then anyAlive = true break end
+                    else
+                        local hum = obj:FindFirstChildOfClass("Humanoid")
+                        if hum and hum.Health > 0 then anyAlive = true break end
+                    end
                 end
             end
         end
-        if health <= 0 then return true end
+        if not anyAlive then
+            print("[V2] Area cleared!")
+            return true
+        end
         if tick() - start > timeout then
             print("[V2] Timeout, moving on.")
             return true
@@ -347,7 +359,24 @@ local function waitForAreaClear(area)
     end
 end
 
--- Main V2 farm loop (uses hardcoded CFrames only)
+-- Get the area (the model containing enemies) for health check
+local function getArea(element, tier)
+    local Map = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("Map")
+    local RegionsLoaded = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("RegionsLoaded")
+
+    if tier == "Basic" then
+        return Map and Map:FindFirstChild("ElementZones") and Map.ElementZones:FindFirstChild(element) and Map.ElementZones[element]:FindFirstChild(element)
+    else
+        local areaName = tier .. element .. "Area"
+        local areaFolder = RegionsLoaded and RegionsLoaded:FindFirstChild(areaName)
+        if areaFolder then
+            return areaFolder:FindFirstChild("Important") and areaFolder.Important:FindFirstChild(element)
+        end
+    end
+    return nil
+end
+
+-- Main V2 farm loop (dynamic paths + health)
 spawn(function()
     local elementOrder = { "Fire", "Water", "Earth", "Plasma" }
     local tierOrder = { "Basic", "Advanced", "Master", "Grandmaster" }
@@ -358,45 +387,43 @@ spawn(function()
                 for _, element in ipairs(elementOrder) do
                     for _, tier in ipairs(tierOrder) do
                         if getgenv().SaberFarmingStates.V2[element][tier] then
-                            local cfData = HARDCODED[element] and HARDCODED[element][tier]
-                            if cfData then
-                                print("[V2] Farming " .. tier .. " " .. element)
+                            print("[V2] 🔥 Farming " .. tier .. " " .. element)
 
-                                -- Portal
-                                teleportTo(cfData.portal)
+                            -- 1. Teleport to portal
+                            local portalCF = getTeleportCFrame(element, tier, "portal")
+                            if portalCF then
+                                teleportTo(portalCF)
                                 wait(0.5)
+                            else
+                                print("[V2] ⚠️ Skipping " .. tier .. " " .. element .. " (no portal)")
+                                goto continue
+                            end
 
-                                -- Inner circle (with offset)
+                            -- 2. Teleport to inner circle (with offset)
+                            local innerCF = getTeleportCFrame(element, tier, "inner")
+                            if innerCF then
                                 local offset = CFrame.new(15, 40, -37)
                                 local targetCF = CFrame.new(
-                                    cfData.inner.Position + cfData.inner:VectorToWorldSpace(offset.Position),
-                                    cfData.inner.Position
+                                    innerCF.Position + innerCF:VectorToWorldSpace(offset.Position),
+                                    innerCF.Position
                                 )
                                 teleportTo(targetCF)
                                 wait(0.3)
-
-                                -- Wait for area to clear (only if we can find the area)
-                                -- Try to find the area dynamically for health check
-                                local area = nil
-                                local Map = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("Map")
-                                local RegionsLoaded = workspace:FindFirstChild("Gameplay") and workspace.Gameplay:FindFirstChild("RegionsLoaded")
-
-                                if tier == "Basic" then
-                                    area = Map and Map:FindFirstChild("ElementZones") and Map.ElementZones:FindFirstChild(element) and Map.ElementZones[element]:FindFirstChild(element)
-                                else
-                                    local areaName = tier .. element .. "Area"
-                                    area = RegionsLoaded and RegionsLoaded:FindFirstChild(areaName) and RegionsLoaded[areaName]:FindFirstChild("Important") and RegionsLoaded[areaName].Important:FindFirstChild(element)
-                                end
-
-                                if area then
-                                    waitForAreaClear(area)
-                                else
-                                    print("[V2] No area found for health check, waiting 5 seconds.")
-                                    wait(5)
-                                end
-
-                                print("[V2] " .. tier .. " " .. element .. " done.")
+                            else
+                                print("[V2] ⚠️ No inner circle, staying at portal.")
                             end
+
+                            -- 3. Health detection – wait until area is clear
+                            local area = getArea(element, tier)
+                            if area then
+                                waitForAreaClear(area)
+                            else
+                                print("[V2] ⚠️ No area found for health check, waiting 5s.")
+                                wait(5)
+                            end
+
+                            print("[V2] ✅ " .. tier .. " " .. element .. " done!")
+                            ::continue::
                         end
                     end
                 end
