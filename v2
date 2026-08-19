@@ -6,26 +6,14 @@ getgenv().SaberFarmingStates = {
     BringAdvancedFire = false,
     BringMasterFire = false,
     BringGrandmasterFire = false,
-    
     BringBasicWater = false,
     BringAdvancedWater = false,
     BringMasterWater = false,
-    BringGrandmasterWater = false
-    ,
+    BringGrandmasterWater = false,
     -- v2 selection + master farm toggle
     V2 = {
-        Fire = {
-            Basic = false,
-            Advanced = false,
-            Master = false,
-            Grandmaster = false
-        },
-        Water = {
-            Basic = false,
-            Advanced = false,
-            Master = false,
-            Grandmaster = false
-        },
+        Fire = { Basic = false, Advanced = false, Master = false, Grandmaster = false },
+        Water = { Basic = false, Advanced = false, Master = false, Grandmaster = false },
         FarmActive = false
     }
 }
@@ -35,26 +23,22 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 -- =============================================================================
 -- 2. BOOT WALLY V3 UI LIBRARY & CREATE MAIN WINDOW
 -- =============================================================================
-local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Wally%20Ui')))() 
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Anti-Ant/Ui/refs/heads/main/Wally%20Ui')))()
 local Window = library:CreateWindow("Saber Sim Hub")
 
 -- =============================================================================
 -- 3. FIRE ELEMENTS TAB & TOGGLES (Folder Accordion Layout)
 -- =============================================================================
 local FireFolder = Window:CreateFolder("Fire Elements")
-
 FireFolder:Toggle("Basic Fire Golem/Boss", function(bool)
     getgenv().SaberFarmingStates.BringBasicFire = bool
 end)
-
 FireFolder:Toggle("Advanced Fire Golem/Boss", function(bool)
     getgenv().SaberFarmingStates.BringAdvancedFire = bool
 end)
-
 FireFolder:Toggle("Master Fire Golem/Boss", function(bool)
     getgenv().SaberFarmingStates.BringMasterFire = bool
 end)
-
 FireFolder:Toggle("Grandmaster Fire Golem/Boss", function(bool)
     getgenv().SaberFarmingStates.BringGrandmasterFire = bool
 end)
@@ -63,75 +47,61 @@ end)
 -- 4. WATER ELEMENTS TAB & TOGGLES
 -- =============================================================================
 local WaterFolder = Window:CreateFolder("Water Elements")
-
 WaterFolder:Toggle("Basic Water Mobs/Boss", function(bool)
     getgenv().SaberFarmingStates.BringBasicWater = bool
 end)
-
 WaterFolder:Toggle("Advanced Water Mobs/Boss", function(bool)
     getgenv().SaberFarmingStates.BringAdvancedWater = bool
 end)
-
 WaterFolder:Toggle("Master Water Mobs/Boss", function(bool)
     getgenv().SaberFarmingStates.BringMasterWater = bool
 end)
-
 WaterFolder:Toggle("Grandmaster Water Mobs/Boss", function(bool)
     getgenv().SaberFarmingStates.BringGrandmasterWater = bool
 end)
 
--- ===================== V2 UI: Separate selection toggles + master farm toggle =====================
+-- =============================================================================
+-- 4.5 V2 UI: Separate selection toggles + master farm toggle
+-- =============================================================================
 local FireV2 = Window:CreateFolder("Fire v2")
-
 FireV2:Toggle("Basic Fire (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Fire.Basic = bool
 end)
-
 FireV2:Toggle("Advanced Fire (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Fire.Advanced = bool
 end)
-
 FireV2:Toggle("Master Fire (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Fire.Master = bool
 end)
-
 FireV2:Toggle("Grandmaster Fire (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Fire.Grandmaster = bool
 end)
-
 FireV2:Toggle("Start Farm (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.FarmActive = bool
 end)
 
 local WaterV2 = Window:CreateFolder("Water v2")
-
 WaterV2:Toggle("Basic Water (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Water.Basic = bool
 end)
-
 WaterV2:Toggle("Advanced Water (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Water.Advanced = bool
 end)
-
 WaterV2:Toggle("Master Water (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Water.Master = bool
 end)
-
 WaterV2:Toggle("Grandmaster Water (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.Water.Grandmaster = bool
 end)
-
 WaterV2:Toggle("Start Farm (v2)", function(bool)
     getgenv().SaberFarmingStates.V2.FarmActive = bool
 end)
 
 -- =============================================================================
--- 5. CORE BACKGROUND ENGINE (Handles Golems & Bosses with Explicit if/else)
+-- 5. CORE BACKGROUND ENGINE (Original pull-to-player system)
 -- =============================================================================
 local function pullEnemiesToPlayer(area, myRoot)
     if not area or not myRoot then return end
-
-    -- Match Untitled-2 behaviour: anchor and set CFrame directly for each mob model
     for _, mob in ipairs(area:GetChildren()) do
         if mob:IsA("Model") then
             local hrp = mob:FindFirstChild("HumanoidRootPart")
@@ -145,7 +115,6 @@ end
 
 local function unanchorAreaEnemies(area)
     if not area then return end
-
     for _, obj in ipairs(area:GetDescendants()) do
         if obj:IsA("Model") then
             local hrp = obj:FindFirstChild("HumanoidRootPart")
@@ -156,7 +125,7 @@ local function unanchorAreaEnemies(area)
     end
 end
 
--- Loop which continuously tries to pull enabled-area mobs to the player.
+-- Original pull loop (keep this as-is)
 task.spawn(function()
     while true do
         local success, err = pcall(function()
@@ -238,106 +207,224 @@ task.spawn(function()
                 end
             end
         end)
-
         if not success then
             warn("[FarmLoop] Error in pull loop:", err)
         end
-
-        -- short wait to avoid spamming
         task.wait(0.08)
     end
 end)
 
--- ===================== V2: Teleport farm (teleports player between selected areas) =====================
+-- =============================================================================
+-- 6. V2 TELEPORT-LOOP ENGINE (Portal → Inner Circle → Farm → Cycle)
+-- =============================================================================
 
-local FireStages = {
-    { key = "Basic", area = workspace.Gameplay.Map.ElementZones.Fire.Fire, tp = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339) },
-    { key = "Advanced", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and workspace.Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire), tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1) },
-    { key = "Master", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and workspace.Gameplay.RegionsLoaded.MasterFireArea.Important.Fire), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) },
-    { key = "Grandmaster", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and workspace.Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) }
-}
-
-local WaterStages = {
-    { key = "Basic", area = workspace.Gameplay.Map.ElementZones.Water.Water, tp = CFrame.new(490.819, 188.807999, 478.371002, 0.243122339, -0, -0.969995677, 0, 1, -0, 0.969995677, 0, 0.243122339) },
-    { key = "Advanced", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and workspace.Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water), tp = CFrame.new(-115.801003, 34.9350014, 774.104004, 1, 0, 0, 0, 1, 0, 0, 0, 1) },
-    { key = "Master", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and workspace.Gameplay.RegionsLoaded.MasterWaterArea.Important.Water), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) },
-    { key = "Grandmaster", area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (workspace.Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and workspace.Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water), tp = CFrame.new(-903.932983, 91.5884781, 650.526306, -0.352890134, 0, -0.935664833, 0, 1, 0, 0.935664833, 0, -0.352890134) }
-}
-
-local function getAreaEnemyHealths(area)
-    local list = {}
-    if not area then return list end
+-- Helper: get element health (0 = dead)
+local function getElementHealth(area)
+    if not area then return 0 end
     for _, obj in ipairs(area:GetDescendants()) do
         if obj:IsA("Model") then
             local hrp = obj:FindFirstChild("HumanoidRootPart")
             if hrp then
                 local ev = hrp:FindFirstChild("EnemyHealth")
-                if ev then table.insert(list, ev) end
+                if ev and ev.Value then
+                    return ev.Value
+                end
+                -- Fallback: check Humanoid
+                local hum = obj:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    return hum.Health
+                end
             end
         end
     end
-    return list
+    return 0
 end
 
+-- Helper: wait until area is clear (health = 0)
 local function waitForAreaClear(area)
-    local enemies = getAreaEnemyHealths(area)
-    if #enemies == 0 then return true end
+    if not area then return true end
+    local timeout = 120
+    local start = tick()
     while true do
-        local allDead = true
-        for _, ev in ipairs(enemies) do
-            if ev and ev.Value > 0 then
-                allDead = false
-                break
-            end
+        local health = getElementHealth(area)
+        if health <= 0 then
+            return true
         end
-        if allDead then return true end
-        task.wait(0.1)
+        if tick() - start > timeout then
+            print("[V2] Timeout waiting for area to clear, moving on.")
+            return true
+        end
+        task.wait(0.5)
     end
 end
 
+-- Helper: teleport player to a CFrame
 local function teleportTo(cf)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         LocalPlayer.Character.HumanoidRootPart.CFrame = cf
+        LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+        LocalPlayer.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.zero
     end
 end
 
-local function attackCurrentArea()
-    -- placeholder: user may add attack logic here
+-- Helper: get a zone's portal and inner circle
+local function getZoneTeleports(element, tier)
+    local configs = {
+        Fire = {
+            Basic = {
+                portal = "Gameplay.Map.ElementZones.Fire.FireTeleport.FireTeleportPart1",
+                inner = "Gameplay.Map.ElementZones.Fire.InnerCircle",
+                area = workspace.Gameplay.Map.ElementZones.Fire.Fire
+            },
+            Advanced = {
+                portal = "Gameplay.RegionsLoaded.AdvancedFireArea.Important.Teleport.FireTeleportPart2",
+                inner = "Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire.InnerCircle",
+                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedFireArea.Important.Fire)
+            },
+            Master = {
+                portal = "Gameplay.RegionsLoaded.MasterFireArea.Important.Teleport.FireTeleportPart2",
+                inner = "Gameplay.RegionsLoaded.MasterFireArea.Important.Fire.InnerCircle",
+                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterFireArea.Important.Fire)
+            },
+            Grandmaster = {
+                portal = "Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Teleport.FireTeleportPart2",
+                inner = "Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire.InnerCircle",
+                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterFireArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterFireArea.Important.Fire) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterFireArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterFireArea.Important.Fire)
+            }
+        },
+        Water = {
+            Basic = {
+                portal = "Gameplay.Map.ElementZones.Water.WaterTeleport.WaterTeleportPart1",
+                inner = "Gameplay.Map.ElementZones.Water.InnerCircle",
+                area = workspace.Gameplay.Map.ElementZones.Water.Water
+            },
+            Advanced = {
+                portal = "Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Teleport.WaterTeleportPart2",
+                inner = "Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water.InnerCircle",
+                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("AdvancedWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.AdvancedWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("AdvancedWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.AdvancedWaterArea.Important.Water)
+            },
+            Master = {
+                portal = "Gameplay.RegionsLoaded.MasterWaterArea.Important.Teleport.WaterTeleportPart2",
+                inner = "Gameplay.RegionsLoaded.MasterWaterArea.Important.Water.InnerCircle",
+                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("MasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.MasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("MasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.MasterWaterArea.Important.Water)
+            },
+            Grandmaster = {
+                portal = "Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Teleport.WaterTeleportPart2",
+                inner = "Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water.InnerCircle",
+                area = (game:GetService("ReplicatedStorage").HiddenRegions:FindFirstChild("GrandmasterWaterArea") and game:GetService("ReplicatedStorage").HiddenRegions.GrandmasterWaterArea.Important.Water) or (game:GetService("Workspace").Gameplay.RegionsLoaded:FindFirstChild("GrandmasterWaterArea") and game:GetService("Workspace").Gameplay.RegionsLoaded.GrandmasterWaterArea.Important.Water)
+            }
+        }
+    }
+    return configs[element] and configs[element][tier]
 end
 
--- Farm loop for v2 selection
+-- Helper: get a path from workspace
+local function getPath(path)
+    local curr = workspace
+    for part in path:gmatch("[^%.]+") do
+        curr = curr:FindFirstChild(part)
+        if not curr then return nil end
+    end
+    return curr
+end
+
+-- Main V2 farm loop (teleport-loop version)
 task.spawn(function()
     while true do
         if getgenv().SaberFarmingStates.V2.FarmActive then
             pcall(function()
+                -- Build list of enabled Fire stages
                 local enabledFire = {}
-                for _, s in ipairs(FireStages) do
-                    if getgenv().SaberFarmingStates.V2.Fire[s.key] and s.area then
-                        table.insert(enabledFire, s)
+                local fireTiers = { "Basic", "Advanced", "Master", "Grandmaster" }
+                for _, tier in ipairs(fireTiers) do
+                    if getgenv().SaberFarmingStates.V2.Fire[tier] then
+                        local config = getZoneTeleports("Fire", tier)
+                        if config and config.area then
+                            table.insert(enabledFire, { tier = tier, config = config })
+                        end
                     end
                 end
 
+                -- Build list of enabled Water stages
                 local enabledWater = {}
-                for _, s in ipairs(WaterStages) do
-                    if getgenv().SaberFarmingStates.V2.Water[s.key] and s.area then
-                        table.insert(enabledWater, s)
+                local waterTiers = { "Basic", "Advanced", "Master", "Grandmaster" }
+                for _, tier in ipairs(waterTiers) do
+                    if getgenv().SaberFarmingStates.V2.Water[tier] then
+                        local config = getZoneTeleports("Water", tier)
+                        if config and config.area then
+                            table.insert(enabledWater, { tier = tier, config = config })
+                        end
                     end
                 end
 
+                -- Process Fire stages
                 for _, stage in ipairs(enabledFire) do
                     if not getgenv().SaberFarmingStates.V2.FarmActive then break end
-                    waitForAreaClear(stage.area)
-                    teleportTo(stage.tp)
-                    task.wait(0.4)
-                    attackCurrentArea()
+
+                    local area = stage.config.area
+                    local portalPath = stage.config.portal
+                    local innerPath = stage.config.inner
+
+                    -- Step 1: Teleport to portal
+                    local portal = getPath(portalPath)
+                    if portal then
+                        print("[V2] Teleporting to " .. stage.tier .. " Fire portal")
+                        teleportTo(portal.CFrame)
+                        task.wait(0.5)
+                    end
+
+                    -- Step 2: Teleport to inner circle (with offset)
+                    local inner = getPath(innerPath)
+                    if inner then
+                        print("[V2] Teleporting to " .. stage.tier .. " Fire inner circle")
+                        local offset = CFrame.new(15, 40, -37)
+                        local targetCF = CFrame.new(
+                            inner.Position + inner.CFrame:VectorToWorldSpace(offset.Position),
+                            inner.Position
+                        )
+                        teleportTo(targetCF)
+                        task.wait(0.3)
+                    end
+
+                    -- Step 3: Wait for area to clear (health = 0)
+                    print("[V2] Farming " .. stage.tier .. " Fire...")
+                    waitForAreaClear(area)
+                    print("[V2] " .. stage.tier .. " Fire cleared!")
                 end
 
+                -- Process Water stages
                 for _, stage in ipairs(enabledWater) do
                     if not getgenv().SaberFarmingStates.V2.FarmActive then break end
-                    waitForAreaClear(stage.area)
-                    teleportTo(stage.tp)
-                    task.wait(0.4)
-                    attackCurrentArea()
+
+                    local area = stage.config.area
+                    local portalPath = stage.config.portal
+                    local innerPath = stage.config.inner
+
+                    -- Step 1: Teleport to portal
+                    local portal = getPath(portalPath)
+                    if portal then
+                        print("[V2] Teleporting to " .. stage.tier .. " Water portal")
+                        teleportTo(portal.CFrame)
+                        task.wait(0.5)
+                    end
+
+                    -- Step 2: Teleport to inner circle (with offset)
+                    local inner = getPath(innerPath)
+                    if inner then
+                        print("[V2] Teleporting to " .. stage.tier .. " Water inner circle")
+                        local offset = CFrame.new(15, 40, -37)
+                        local targetCF = CFrame.new(
+                            inner.Position + inner.CFrame:VectorToWorldSpace(offset.Position),
+                            inner.Position
+                        )
+                        teleportTo(targetCF)
+                        task.wait(0.3)
+                    end
+
+                    -- Step 3: Wait for area to clear (health = 0)
+                    print("[V2] Farming " .. stage.tier .. " Water...")
+                    waitForAreaClear(area)
+                    print("[V2] " .. stage.tier .. " Water cleared!")
                 end
             end)
         end
